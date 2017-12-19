@@ -8,12 +8,12 @@ namespace screener
 {
     public class StockMarket
     {
+        StockDB dB;
         public StockMarket() {
-
+            dB = new StockDB();
         }
         public void updateCompaniesList()
         {
-            StockDB dB = new StockDB();
             NseStockData nse = new NseStockData();
             var list = nse.getListOfCompanies();
             if(list == null) {
@@ -25,11 +25,21 @@ namespace screener
 
         public void updateBhavData(DateTime date)
         {
-            StockDB dB = new StockDB();
             NseStockData nse = new NseStockData();
             var stockData = nse.updateBhavData(date);
             if(stockData != null)
                 dB.AddDailyStockData(stockData, date);
+        }
+
+        public DateTime getLastDate()
+        {
+            return dB.GetLastUpdatedDate();
+        }
+
+        public void getLTP()
+        {
+            var list = dB.GetLTP().ToList();
+            Console.WriteLine("Count : {0}", list.Count());
         }
     }
 }

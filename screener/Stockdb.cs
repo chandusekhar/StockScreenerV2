@@ -41,5 +41,22 @@ namespace screener
                 return count;
             }
         }
+
+        public DateTime GetLastUpdatedDate()
+        {
+            using(var db = new StockDataContext())
+            {
+                return db.stockData.Select(x => x.date).OrderByDescending(x => x).FirstOrDefault();
+            }
+        }
+
+        public List<DailyStockData> GetLTP()
+        {
+            var date = GetLastUpdatedDate();
+            using(var db = new StockDataContext())
+            {
+                return db.stockData.Where(x => x.date.CompareTo(date) == 0).Select(x => x).ToList();
+            }
+        }
     }
 }
