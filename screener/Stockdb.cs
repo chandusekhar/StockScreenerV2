@@ -4,8 +4,18 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
+/*
+    Help: https://docs.microsoft.com/en-us/ef/core/get-started/netcore/new-db-sqlite
+    dotnet ef migrations add InitialCreate &&  dotnet ef database update
+ */
+
 namespace StockMarket
 {
+    class ConstValues
+    {
+        public const string defaultUser = "user";
+        public const string defaultIndustry = "noIndustry";
+    }
     public class CompanyInformation
     {
         [Required]
@@ -21,8 +31,12 @@ namespace StockMarket
         public int marketLot { get; set; }
         [Required]
         public decimal faceValue { get; set; }
-        [DefaultValue("NoIndustry")]
         public string industry { get; set; }
+
+        public CompanyInformation()
+        {
+            this.industry = ConstValues.defaultIndustry;
+        }
     }
 
     public class WatchList
@@ -33,10 +47,15 @@ namespace StockMarket
         public string isinNumber { get; set; }
         [Required]
         public string series { get; set; }
-        [DefaultValue("")]
         public string notes { get; set; }
-        [DefaultValue(null)]
+        [Required]
         public string userName { get; set; }
+
+        public WatchList()
+        {
+            this.userName = ConstValues.defaultUser;
+            this.notes = "";
+        }
     }
 
     public class PortfolioInformation
@@ -51,10 +70,15 @@ namespace StockMarket
         public DateTime buyDate { get; set; }
         [Required]
         public decimal buyPrice { get; set; }
-        [DefaultValue("")]
         public string notes { get; set; }
-        [DefaultValue(null)]
+        [Required]
         public string userName { get; set; }
+
+        public PortfolioInformation()
+        {
+            this.userName = ConstValues.defaultUser;
+            this.notes = "";
+        }
     }
 
     public class DailyStockData
@@ -64,21 +88,21 @@ namespace StockMarket
         [Required]
         public string series { get; set; }
         [Required]
-        public float open { get; set; }
+        public decimal open { get; set; }
         [Required]
-        public float high { get; set; }
+        public decimal high { get; set; }
         [Required]
-        public float low { get; set; }
+        public decimal low { get; set; }
         [Required]
-        public float close { get; set; }
+        public decimal close { get; set; }
         [Required]
-        public float lastPrice { get; set; }
+        public decimal lastPrice { get; set; }
         [Required]
-        public float prevClose { get; set; }
+        public decimal prevClose { get; set; }
         [Required]
         public long totalTradedQty { get; set; }
         [Required]
-        public float totalTradedValue { get; set; }
+        public decimal totalTradedValue { get; set; }
         [Required]
         public DateTime date { get; set; }
         [Required]
@@ -88,7 +112,7 @@ namespace StockMarket
         [Required]
         public long deliverableQty { get; set; }
         [Required]
-        public float deliveryPercentage { get; set; }
+        public decimal deliveryPercentage { get; set; }
     }
 
     public class CircuitBreaker
@@ -99,7 +123,7 @@ namespace StockMarket
         public string series { get; set; }
         [Required]
         public char high_low { get; set; }
-        [Key]
+        [Required]
         public DateTime date { get; set; }
     }
 
@@ -122,6 +146,7 @@ namespace StockMarket
             modelBuilder.Entity<CompanyInformation>().HasKey(x => new { x.series, x.isinNumber, x.symbol });
             modelBuilder.Entity<PortfolioInformation>().HasKey(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<DailyStockData>().HasKey(x => new { x.isinNumber, x.date, x.series });
+            modelBuilder.Entity<CircuitBreaker>().HasKey(x => new { x.nseSymbol, x.date, x.series });
 
             // Set the index for faster query operations
             modelBuilder.Entity<WatchList>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });

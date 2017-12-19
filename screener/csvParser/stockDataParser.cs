@@ -10,6 +10,7 @@ using TinyCsvParser.Mapping;
 
 using StockMarket;
 
+
 namespace StockDataParser
 {
     class CsvCompanyInformationMapping : CsvMapping<CompanyInformation>

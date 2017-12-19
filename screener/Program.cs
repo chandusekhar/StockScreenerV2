@@ -3,11 +3,6 @@ using System.Linq;
 
 using StockMarket;
 using StockDataParser;
-/*
-    Help: https://docs.microsoft.com/en-us/ef/core/get-started/netcore/new-db-sqlite
-    dotnet ef migrations add InitialCreate &&  dotnet ef database update
-
- */
 
 namespace screener
 {
