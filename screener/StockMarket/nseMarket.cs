@@ -74,6 +74,21 @@ namespace StockDataParser
         }
     }
 
+    class IsinToIndustry
+    {
+        public string isinNumber { get; set; }
+        public string industry { get; set; }
+    }
+
+    class CsvIsinToIndustry : CsvMapping<IsinToIndustry>
+    {
+        public CsvIsinToIndustry() : base()
+        {
+            MapProperty(6, x => x.isinNumber);
+            MapProperty(7, x => x.industry);
+        }
+    }
+
     class FileDownloader
     {
         public FileDownloader()
@@ -209,7 +224,35 @@ namespace StockDataParser
             return stockData;
         }
 
-        public IEnumerable<CompanyInformation> getListOfCompanies()
+        Dictionary<string, string> getIndustryList()
+        {
+            CsvParserOptions csvParserOptions = new CsvParserOptions(true, ',');
+            CsvIsinToIndustry csvMapper = new CsvIsinToIndustry();
+            CsvParser<IsinToIndustry> csvParser = new CsvParser<IsinToIndustry>(csvParserOptions, csvMapper);
+
+            try
+            {
+                var result = csvParser
+                    .ReadFromFile(@"./data/ListOfScrips.csv", Encoding.ASCII)
+                    .Select(x => x.Result)
+                    .ToList();
+                Dictionary<string, string> dict = new Dictionary<string, string>();
+                foreach(var item in result)
+                {
+                    dict.TryAdd(item.isinNumber, item.industry);
+                }
+                return dict;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("{0}", ex.Message);
+                Environment.Exit(0);
+            }
+            return null;
+
+        }
+
+        public List<CompanyInformation> getListOfCompanies()
         {
             try
             {
@@ -228,7 +271,15 @@ namespace StockDataParser
                 // Parse the CSV file
                 var result = csvParser
                     .ReadFromFile(filename, Encoding.ASCII)
-                    .Select(x => x.Result);
+                    .Select(x => x.Result)
+                    .ToList();
+
+                var mapping = getIndustryList();
+                foreach(var item in result)
+                {
+                    string industry;
+                    item.industry = mapping.TryGetValue(item.isinNumber, out industry) ? industry : ConstValues.defaultIndustry;
+                }
 
                 return result;
             }

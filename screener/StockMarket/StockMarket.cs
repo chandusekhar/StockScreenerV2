@@ -3,6 +3,7 @@ using System.Linq;
 
 using StockMarket;
 using StockDataParser;
+using System.Diagnostics;
 
 namespace screener
 {
@@ -38,8 +39,16 @@ namespace screener
 
         public void getLTP()
         {
-            var list = dB.GetLTP().ToList();
-            Console.WriteLine("Count : {0}", list.Count());
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var list = dB.getLTPForIndustry();
+            sw.Stop();
+
+            foreach(var item in list)
+            {
+                Console.WriteLine("{0} -> {1} -> {2}", item.symbol, item.industry, item.close);
+            }
+            Console.WriteLine("Count : {0}, Elapsed : {1}", list.Count(), sw.Elapsed);
         }
     }
 }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace StockMarket
 {
-    class ConstValues
+    public class ConstValues
     {
         public const string defaultUser = "user";
         public const string defaultIndustry = "noIndustry";
@@ -83,6 +83,8 @@ namespace StockMarket
 
     public class DailyStockData
     {
+        [NotMapped]
+        public string industry { get; set; }
         [Required]
         public string symbol { get; set; }
         [Required]
@@ -153,6 +155,8 @@ namespace StockMarket
             modelBuilder.Entity<PortfolioInformation>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<CompanyInformation>().HasIndex(x => new { x.symbol, x.isinNumber, x.series });
             modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.date, x.symbol, x.isinNumber, x.series });
+            modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.symbol, x.series });
+            modelBuilder.Entity<DailyStockData>().HasIndex(x => x.date);
             modelBuilder.Entity<CircuitBreaker>().HasIndex(x => x.date);
         }
     }
