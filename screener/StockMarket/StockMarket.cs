@@ -19,7 +19,7 @@ namespace screener
             var list = nse.getListOfCompanies();
             if(list == null) {
                 Console.WriteLine("Could not get list of companies from NSE");
-                Environment.Exit(1);
+                return;
             }
             dB.AddCompaniesToList(list);
         }
@@ -34,21 +34,22 @@ namespace screener
 
         public DateTime getLastDate()
         {
-            return dB.GetLastUpdatedDate();
+            return dB.GetLastTradeDate();
         }
 
         public void getLTP()
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var list = dB.getLTPForIndustry();
+            var list = dB.GetLTP();
             sw.Stop();
 
             foreach(var item in list)
             {
-                Console.WriteLine("{0} -> {1} -> {2}", item.symbol, item.industry, item.close);
+                Console.WriteLine("{0} -> {1} -> {2}", item.symbol, item.industry, item.change);
             }
             Console.WriteLine("Count : {0}, Elapsed : {1}", list.Count(), sw.Elapsed);
         }
+
     }
 }

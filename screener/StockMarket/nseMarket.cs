@@ -232,15 +232,11 @@ namespace StockDataParser
 
             try
             {
-                var result = csvParser
-                    .ReadFromFile(@"./data/ListOfScrips.csv", Encoding.ASCII)
-                    .Select(x => x.Result)
-                    .ToList();
                 Dictionary<string, string> dict = new Dictionary<string, string>();
-                foreach(var item in result)
-                {
-                    dict.TryAdd(item.isinNumber, item.industry);
-                }
+                csvParser.ReadFromFile(@"./data/ListOfScrips.csv", Encoding.ASCII)
+                                      .Select(x => x.Result)
+                                      .ToList()
+                                      .ForEach(x => dict.TryAdd(x.isinNumber, x.industry));
                 return dict;
             }
             catch(Exception ex)

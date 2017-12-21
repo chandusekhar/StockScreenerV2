@@ -85,6 +85,15 @@ namespace StockMarket
     {
         [NotMapped]
         public string industry { get; set; }
+
+        [NotMapped]
+        public decimal change
+        {
+            get
+            {
+                return Math.Round(100 * (lastPrice - prevClose) / prevClose, 2);
+            }
+        }
         [Required]
         public string symbol { get; set; }
         [Required]

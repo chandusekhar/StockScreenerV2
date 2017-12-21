@@ -42,7 +42,7 @@ namespace screener
             }
         }
 
-        public DateTime GetLastUpdatedDate()
+        public DateTime GetLastTradeDate()
         {
             using(var db = new StockDataContext())
             {
@@ -50,28 +50,26 @@ namespace screener
             }
         }
 
-        public List<DailyStockData> GetLTP()
+        Dictionary<string, string> getSymbolToIndustryMapping()
         {
-            var date = GetLastUpdatedDate();
-            using(var db = new StockDataContext())
-            {
-                return db.stockData.Where(x => x.date.CompareTo(date) == 0).ToList();
-            }
-        }
-
-        public List<DailyStockData> getLTPForIndustry()
-        {
-            var date = GetLastUpdatedDate();
             using(var db = new StockDataContext())
             {
                 Dictionary<string, string> dict = new Dictionary<string, string>();
                 db.companyInformation.Select(x => new {x.symbol, x.industry}).ToList().ForEach(x => dict.TryAdd(x.symbol, x.industry));
-
-                var ltp = db.stockData.Where(x => x.date.CompareTo(date) == 0).ToList();
-                foreach(var item in ltp)
+                return dict;
+            }
+        }
+        public List<DailyStockData> GetLTP()
+        {
+            var lastTradedDate = GetLastTradeDate();
+            var symbolIndustryMapping = getSymbolToIndustryMapping();
+            using(var db = new StockDataContext())
+            {
+                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).ToList();
+                foreach (var item in ltp)
                 {
                     string industry;
-                    item.industry = dict.TryGetValue(item.symbol, out industry) ? industry : ConstValues.defaultIndustry;
+                    item.industry = symbolIndustryMapping.TryGetValue(item.symbol, out industry) ? industry : ConstValues.defaultIndustry;
                 }
                 return ltp.OrderBy(x => x.industry).ToList();
             }

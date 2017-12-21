@@ -21,7 +21,7 @@ namespace screener
         {
             StockMarket sm = new StockMarket();
             sm.getLTP();
-            //sm.updateBhavData(DateTime.Now);
+
             return;
         }
     }
