@@ -17,11 +17,22 @@ namespace screener
                 sm.updateBhavData(date.AddDays(i));
             }
         }
+
+        static void UpdateStockDataTillToday()
+        {
+            StockMarket sm = new StockMarket();
+            var date = sm.getLastDate();
+            var count = DateTime.Now.Date.CompareTo(date);
+            for(int i = 1; i <= count; i++)
+            {
+                Console.WriteLine("Updating data for {0}", date.AddDays(i).Date);
+                sm.updateBhavData(date.AddDays(i));
+            }
+        }
         static void Main(string[] args)
         {
             StockMarket sm = new StockMarket();
-            sm.getLTP();
-
+            sm.getIndustryChange();
             return;
         }
     }

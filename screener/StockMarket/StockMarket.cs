@@ -10,14 +10,16 @@ namespace screener
     public class StockMarket
     {
         StockDB dB;
-        public StockMarket() {
+        public StockMarket()
+        {
             dB = new StockDB();
         }
         public void updateCompaniesList()
         {
             NseStockData nse = new NseStockData();
             var list = nse.getListOfCompanies();
-            if(list == null) {
+            if (list == null)
+            {
                 Console.WriteLine("Could not get list of companies from NSE");
                 return;
             }
@@ -28,7 +30,7 @@ namespace screener
         {
             NseStockData nse = new NseStockData();
             var stockData = nse.updateBhavData(date);
-            if(stockData != null)
+            if (stockData != null)
                 dB.AddDailyStockData(stockData, date);
         }
 
@@ -44,12 +46,16 @@ namespace screener
             var list = dB.GetLTP();
             sw.Stop();
 
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 Console.WriteLine("{0} -> {1} -> {2}", item.symbol, item.industry, item.change);
             }
             Console.WriteLine("Count : {0}, Elapsed : {1}", list.Count(), sw.Elapsed);
         }
 
+        public void getIndustryChange()
+        {
+            dB.GetIndustyChange();
+        }
     }
 }

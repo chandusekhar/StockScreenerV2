@@ -126,7 +126,7 @@ namespace StockDataParser
 
         }
 
-        (bool status, string bhavFile, string mtoFile) downloadBhavAndMTOFile(DateTime date)
+        private (bool status, string bhavFile, string mtoFile) downloadBhavAndMTOFile(DateTime date)
         {
             String tmpFolder = Path.GetTempPath();
             // Build the bhav Url
@@ -139,15 +139,17 @@ namespace StockDataParser
 
             Console.WriteLine("Bhav URL : {0}\nDelivery URL: {1}", bhavUrl, deliveryPositionsUrl);
 
+            // Download bhav and delivery file
             string bhavFile = FileDownloader.downloadFile(bhavUrl);
             string deliveryFile = FileDownloader.downloadFile(deliveryPositionsUrl);
-
             if (bhavFile == null || deliveryFile == null)
             {
                 Console.WriteLine("Could not update daily stock price for date {0}", date.ToString("dd/MM/yyyy"));
                 return (false, null, null);
             }
 
+            //Check the size of bhav file are more than 1k to make sure we have
+            //downloaded the correct file
             var bhav = new FileInfo(bhavFile).Length;
             var delivery = new FileInfo(deliveryFile).Length;
             if (bhav < 1000 || delivery < 1000)
@@ -156,16 +158,17 @@ namespace StockDataParser
                 return (false, null, null);
             }
 
-
-            string bhavFileUnzipped = string.Format("{0}\\cm{1}bhav.csv",
-                                            tmpFolder, date.ToString("ddMMMyyyy").ToUpper());
-            if (File.Exists(bhavFileUnzipped))
-                File.Delete(bhavFileUnzipped);
+            // unzip the bhav file
+            string bhavFileUnzipped = string.Format("{0}\\cm{1}bhav.csv", tmpFolder, date.ToString("ddMMMyyyy").ToUpper());
+            if (File.Exists(bhavFileUnzipped)) File.Delete(bhavFileUnzipped);
             ZipFile.ExtractToDirectory(bhavFile, tmpFolder);
+
+            // Return the unzipped the bhav file
             return (true, bhavFileUnzipped, deliveryFile);
         }
 
-        IEnumerable<DailyStockDeliveryPosition> parseMTOFile(string csvFile)
+        // Parse the MTO csv file
+        private IEnumerable<DailyStockDeliveryPosition> parseMTOFile(string csvFile)
         {
             CsvParserOptions csvParserOptions = new CsvParserOptions(true, ',');
             CsvDailyStockDeviveryPositionMapping csvMapper = new CsvDailyStockDeviveryPositionMapping();
@@ -179,7 +182,8 @@ namespace StockDataParser
             return result;
         }
 
-        IEnumerable<DailyStockData> parseBhavFile(string csvFile)
+        //Parse the Bhav csv file
+        private  IEnumerable<DailyStockData> parseBhavFile(string csvFile)
         {
             CsvParserOptions csvParserOptions = new CsvParserOptions(true, ',');
             CsvDailyStockDataMapping csvMapper = new CsvDailyStockDataMapping();
@@ -192,7 +196,8 @@ namespace StockDataParser
             return result;
         }
 
-        public IEnumerable<DailyStockData> updateBhavData(DateTime date)
+        // Download and update the bhav data in DB for a given date
+        public List<DailyStockData> updateBhavData(DateTime date)
         {
             var files = downloadBhavAndMTOFile(date);
             if (files.status == false) return null;
@@ -200,8 +205,6 @@ namespace StockDataParser
             var deliveryData = parseMTOFile(files.mtoFile).ToList();
 
             Console.WriteLine("{0}, {1}", files.bhavFile, files.mtoFile);;
-            Console.WriteLine("{0}, {1}", stockData.Count(), deliveryData.Count());
-
             foreach (var stock in stockData)
             {
                 if (stock.series == "BE")
@@ -212,6 +215,7 @@ namespace StockDataParser
                 }
                 else
                 {
+                    // Fill the deliveryQty and % for every stock
                     var result = deliveryData.Where(x => x.series == stock.series && x.symbol == stock.symbol && x.qtyTraded == stock.totalTradedQty).ToList();
                     if (result.Count() > 0)
                     {
@@ -234,15 +238,15 @@ namespace StockDataParser
             {
                 Dictionary<string, string> dict = new Dictionary<string, string>();
                 csvParser.ReadFromFile(@"./data/ListOfScrips.csv", Encoding.ASCII)
-                                      .Select(x => x.Result)
-                                      .ToList()
-                                      .ForEach(x => dict.TryAdd(x.isinNumber, x.industry));
+                         .Select(x => x.Result)
+                         .ToList()
+                         .ForEach(x => dict.TryAdd(x.isinNumber, x.industry));
+
                 return dict;
             }
             catch(Exception ex)
             {
                 Console.WriteLine("{0}", ex.Message);
-                Environment.Exit(0);
             }
             return null;
 
@@ -273,8 +277,7 @@ namespace StockDataParser
                 var mapping = getIndustryList();
                 foreach(var item in result)
                 {
-                    string industry;
-                    item.industry = mapping.TryGetValue(item.isinNumber, out industry) ? industry : ConstValues.defaultIndustry;
+                    item.industry = mapping.TryGetValue(item.isinNumber, out string industry) ? industry : ConstValues.defaultIndustry;
                 }
 
                 return result;

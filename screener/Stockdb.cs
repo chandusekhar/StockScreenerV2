@@ -14,21 +14,18 @@ namespace screener
 
         }
 
-        public int AddCompaniesToList(IEnumerable<CompanyInformation> list)
+        public int AddCompaniesToList(List<CompanyInformation> list)
         {
             using(var db = new StockDataContext())
             {
-                foreach(var item in list)
-                {
-                    db.companyInformation.Add(item);
-                }
-                var count = db.SaveChanges();
-                Console.WriteLine("Added {0} companies to db", count);
-                return count;
+                list.ForEach(x => db.companyInformation.Add(x));
+
+                // Return the number of companies added to list
+                return db.SaveChanges();
             }
         }
 
-        public int AddDailyStockData(IEnumerable<DailyStockData> list, DateTime date)
+        public int AddDailyStockData(List<DailyStockData> list, DateTime date)
         {
             using(var db = new StockDataContext())
             {
@@ -50,7 +47,7 @@ namespace screener
             }
         }
 
-        Dictionary<string, string> getSymbolToIndustryMapping()
+        private Dictionary<string, string> getSymbolToIndustryMapping()
         {
             using(var db = new StockDataContext())
             {
@@ -65,13 +62,28 @@ namespace screener
             var symbolIndustryMapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
-                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).ToList();
+                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).OrderBy(x => x.industry).ToList();
                 foreach (var item in ltp)
                 {
                     string industry;
                     item.industry = symbolIndustryMapping.TryGetValue(item.symbol, out industry) ? industry : ConstValues.defaultIndustry;
                 }
-                return ltp.OrderBy(x => x.industry).ToList();
+                return ltp;
+            }
+        }
+
+        public void GetIndustyChange()
+        {
+            var stockPrices = GetLTP();
+
+            var result = from stock in stockPrices
+                         group stock by stock.industry into segments
+                         select new { Industry = segments.Key, change = Math.Round(segments.Average(x => x.change), 2)};
+
+            result = result.OrderBy(x => x.change);
+            foreach(var item in result)
+            {
+                Console.WriteLine("{0} {1}", item.Industry, item.change);
             }
         }
     }
