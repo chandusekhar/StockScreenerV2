@@ -14,6 +14,16 @@ namespace screener
 
         }
 
+        private Dictionary<string, string> getSymbolToIndustryMapping()
+        {
+            using(var db = new StockDataContext())
+            {
+                Dictionary<string, string> dict = new Dictionary<string, string>();
+                db.companyInformation.Select(x => new {x.symbol, x.industry}).ToList().ForEach(x => dict.TryAdd(x.symbol, x.industry));
+                return dict;
+            }
+        }
+
         public int AddCompaniesToList(List<CompanyInformation> list)
         {
             using(var db = new StockDataContext())
@@ -39,26 +49,21 @@ namespace screener
             }
         }
 
-        public DateTime GetLastTradeDate()
+        // 0 refers to the last trading day and positive number (day) refers to
+        // last trading day - day
+        public DateTime GetLastTradeDate(int day = 0)
         {
+            if(day < 0) throw new Exception(@"Day ${day} should be greater or equal to 0");
             using(var db = new StockDataContext())
             {
-                return db.stockData.Select(x => x.date).OrderByDescending(x => x).FirstOrDefault();
+                var trading_days = db.stockData.Select(x => x.date).Distinct().OrderByDescending(x => x).ToList();
+                return (trading_days.Count() > day) ? trading_days[day] : trading_days.Last();
             }
         }
 
-        private Dictionary<string, string> getSymbolToIndustryMapping()
+        public List<DailyStockData> GetLTP(int day = 0)
         {
-            using(var db = new StockDataContext())
-            {
-                Dictionary<string, string> dict = new Dictionary<string, string>();
-                db.companyInformation.Select(x => new {x.symbol, x.industry}).ToList().ForEach(x => dict.TryAdd(x.symbol, x.industry));
-                return dict;
-            }
-        }
-        public List<DailyStockData> GetLTP()
-        {
-            var lastTradedDate = GetLastTradeDate();
+            var lastTradedDate = GetLastTradeDate(day);
             var symbolIndustryMapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
@@ -74,16 +79,23 @@ namespace screener
 
         public void GetIndustyChange()
         {
-            var stockPrices = GetLTP();
-
-            var result = from stock in stockPrices
-                         group stock by stock.industry into segments
-                         select new { Industry = segments.Key, change = Math.Round(segments.Average(x => x.change), 2)};
-
-            result = result.OrderBy(x => x.change);
-            foreach(var item in result)
+            for(int i = 0; i < 10; i++)
             {
-                Console.WriteLine("{0} {1}", item.Industry, item.change);
+                var stockPrices = GetLTP(i);
+
+                var result = (from stock in stockPrices
+                            group stock by stock.industry into segments
+                            select new {
+                                Industry = segments.Key,
+                                change = Math.Round(segments.Average(x => x.change), 2)
+                            })
+                            .OrderBy(x => x.change)
+                            .ToList();
+
+                foreach(var item in result)
+                {
+                    Console.WriteLine("{0} {1}", item.Industry, item.change);
+                }
             }
         }
     }
