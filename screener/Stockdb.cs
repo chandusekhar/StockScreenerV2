@@ -7,13 +7,22 @@ using System.Collections.Generic;
 
 namespace screener
 {
+
+    public class StockStats
+    {
+        public string symbol { get; set; }
+        public string series { get; set; }
+        public decimal[] avgPriceChange { get; set; }
+        public decimal[] avgVolumeChage { get; set; }
+    }
+
     public class SectorChange
     {
-        public string industry { get; set; }
+        public string sector { get; set; }
         public decimal change { get; set; }
-        public SectorChange(string industry = "", decimal change = 0)
+        public SectorChange(string sector = "", decimal change = 0)
         {
-            this.industry = industry;
+            this.sector = sector;
             this.change = decimal.Round(change, 2);
         }
     }
@@ -106,7 +115,8 @@ namespace screener
             using (var db = new StockDataContext())
             {
                 var trading_days = db.stockData.Select(x => x.date)
-                                               .Distinct().OrderByDescending(x => x)
+                                               .Distinct()
+                                               .OrderByDescending(x => x)
                                                .ToList();
                 return (trading_days.Count() > day) ? trading_days[day] : trading_days.Last();
             }
@@ -115,14 +125,7 @@ namespace screener
         public List<DailyStockData> GetLTP(int day = 0)
         {
             var lastTradedDate = GetLastTradeDate(day);
-            var symIndMapping = getSymbolToIndustryMapping();
-            using (var db = new StockDataContext())
-            {
-                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).ToList();
-
-                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
-                return ltp;
-            }
+            return GetLTP(lastTradedDate);
         }
 
         public List<DailyStockData> GetLTP(DateTime date)
@@ -131,7 +134,6 @@ namespace screener
             using (var db = new StockDataContext())
             {
                 var ltp = db.stockData.Where(x => x.date.CompareTo(date.Date) == 0).ToList();
-
                 ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
                 return ltp;
             }
@@ -166,53 +168,37 @@ namespace screener
                                     }
                                )
                                .ToList();
-                foreach (var item in result)
-                {
-                    //Console.WriteLine("{0}, {1}, {2}", item.industry, item.stats[0].month, item.stats[0].change);
-                    Console.Write("{0} ", item.industry);
-                    foreach(var i in item.stats)
-                    {
-                        Console.Write(" {0} ", i.change);
-                    }
-                    Console.WriteLine("");
-                }
                 return result;
             }
         }
 
-        public class StockStats
+        private StockStats getStockStats(string symbol, string series, List<DailyStockData> list)
         {
-            public string symbol { get; set; }
-            public string series { get; set; }
-            public decimal[] avgPriceChange { get; set; }
-            public decimal[] avgVolumeChage { get; set; }
+            StockStats stats = new StockStats();
+            // Interval Range. All number are days
+            var int_list = new List<int>{5, 10, 20, 30, 60, 120, 240};
 
-            public StockStats(string symbol, string series, List<DailyStockData> list)
+            // Allocate array and initialize to 0
+            stats.avgPriceChange = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
+            stats.avgVolumeChage = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
+
+            // Set the symbol and series for this stock
+            (stats.symbol, stats.series) = (symbol, series);
+
+            // Set today's change and deliverable volume
+            (stats.avgPriceChange[0], stats.avgVolumeChage[0]) = (list[0].change, list[0].deliverableQty);
+
+            // Compute the avg price and deliverable volume
+            for(int i = 0; i < int_list.Count; i++)
             {
-                // Interval Range. All number are days
-                var int_list = new List<int>{5, 10, 20, 30, 60, 120, 240};
-
-                // Allocate array and initialize to 0
-                avgPriceChange = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
-                avgVolumeChage = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
-
-                // Set the symbol and series for this stock
-                (this.symbol, this.series) = (symbol, series);
-
-                // Set today's change and deliverable volume
-                (avgPriceChange[0], avgVolumeChage[0]) = (list[0].change, list[0].deliverableQty);
-
-                // Compute the avg price and deliverable volume
-                for(int i = 0; i < int_list.Count; i++)
+                // Check if the data exists for this interval
+                if(list.Count() > int_list[i])
                 {
-                    // Check if the data exists for this interval
-                    if(list.Count() > int_list[i])
-                    {
-                        avgPriceChange[i+1] = decimal.Round(100 * (list[0].lastPrice - list[int_list[i]].open) / list[int_list[i]].open, 2);
-                        avgVolumeChage[i+1] = decimal.Round((decimal)list.Take(int_list[i]).Average(x => x.deliverableQty), 2);
-                    }
+                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list[0].lastPrice - list[int_list[i]].open) / list[int_list[i]].open, 2);
+                    stats.avgVolumeChage[i+1] = decimal.Round((decimal)list.Take(int_list[i]).Average(x => x.deliverableQty), 2);
                 }
             }
+            return stats;
         }
 
         public List<StockStats> GetStockStats()
@@ -223,9 +209,7 @@ namespace screener
                                    .GroupBy(x => new {x.symbol, x.series})
                                    .OrderBy(x => x.Key.symbol)
                                    .ThenBy(x => x.Key.series)
-                                   .Select(x => new StockStats(x.Key.symbol,
-                                                               x.Key.series,
-                                                               x.OrderByDescending(y => y.date).ToList()))
+                                   .Select(x => getStockStats(x.Key.symbol, x.Key.series, x.OrderByDescending(y => y.date).ToList()))
                                    .ToList();
             }
         }

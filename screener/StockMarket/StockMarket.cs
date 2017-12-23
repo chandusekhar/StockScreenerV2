@@ -37,13 +37,12 @@ namespace screener
 
         public void updateBhavDataToLatest()
         {
-            StockMarket sm = new StockMarket();
-            var date = sm.getLastDate();
+            var date = getLastDate();
             var count = DateTime.Now.Date.CompareTo(date);
             for(int i = 1; i <= count; i++)
             {
                 Console.WriteLine("Updating data for {0}", date.AddDays(i).Date);
-                sm.updateBhavData(date.AddDays(i));
+                updateBhavData(date.AddDays(i));
             }
             return;
         }
@@ -63,7 +62,7 @@ namespace screener
             var result = dB.GetSectorChange(1).OrderBy(x => x.change).ToList();
             foreach(var item in result)
             {
-                Console.WriteLine("{0}, {1}", item.industry, item.change);
+                Console.WriteLine("{0}, {1}", item.sector, item.change);
             }
             return result;
         }

@@ -273,10 +273,7 @@ namespace StockDataParser
                                       .ToList();
 
                 var mapping = getIndustryList();
-                foreach(var item in result)
-                {
-                    item.industry = mapping.TryGetValue(item.isinNumber, out string industry) ? industry : ConstValues.defaultIndustry;
-                }
+                result.ForEach(x => x.industry =  mapping.TryGetValue(x.isinNumber, out string industry) ? industry : ConstValues.defaultIndustry);
 
                 return result;
             }
