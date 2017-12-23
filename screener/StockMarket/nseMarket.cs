@@ -174,10 +174,9 @@ namespace StockDataParser
             CsvDailyStockDeviveryPositionMapping csvMapper = new CsvDailyStockDeviveryPositionMapping();
             CsvParser<DailyStockDeliveryPosition> csvParser = new CsvParser<DailyStockDeliveryPosition>(csvParserOptions, csvMapper);
 
-            var result = csvParser
-                .ReadFromFile(csvFile, Encoding.ASCII)
-                .Skip(4)
-                .Select(x => x.Result);
+            var result = csvParser.ReadFromFile(csvFile, Encoding.ASCII)
+                                  .Skip(4)  // Skip the first four lines as they contain only header
+                                  .Select(x => x.Result);
 
             return result;
         }
@@ -189,9 +188,8 @@ namespace StockDataParser
             CsvDailyStockDataMapping csvMapper = new CsvDailyStockDataMapping();
             CsvParser<DailyStockData> csvParser = new CsvParser<DailyStockData>(csvParserOptions, csvMapper);
 
-            var result = csvParser
-                .ReadFromFile(csvFile, Encoding.ASCII)
-                .Select(x => x.Result);
+            var result = csvParser.ReadFromFile(csvFile, Encoding.ASCII)
+                                  .Select(x => x.Result);
 
             return result;
         }
@@ -216,7 +214,8 @@ namespace StockDataParser
                 else
                 {
                     // Fill the deliveryQty and % for every stock
-                    var result = deliveryData.Where(x => x.series == stock.series && x.symbol == stock.symbol && x.qtyTraded == stock.totalTradedQty).ToList();
+                    var result = deliveryData.Where(x => x.series == stock.series && x.symbol == stock.symbol && x.qtyTraded == stock.totalTradedQty)
+                                             .ToList();
                     if (result.Count() > 0)
                     {
                         var res = result.First();
@@ -269,10 +268,9 @@ namespace StockDataParser
                 CsvParser<CompanyInformation> csvParser = new CsvParser<CompanyInformation>(csvParserOptions, csvMapper);
 
                 // Parse the CSV file
-                var result = csvParser
-                    .ReadFromFile(filename, Encoding.ASCII)
-                    .Select(x => x.Result)
-                    .ToList();
+                var result = csvParser.ReadFromFile(filename, Encoding.ASCII)
+                                      .Select(x => x.Result)
+                                      .ToList();
 
                 var mapping = getIndustryList();
                 foreach(var item in result)

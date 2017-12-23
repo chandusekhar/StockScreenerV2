@@ -25,6 +25,18 @@ namespace StockMarket
         public string industry { get; set; }
         [Required]
         public decimal change { get; set; }
+
+        public SectorInformation(DateTime date, string industry, decimal change)
+        {
+            this.date = date;
+            this.industry = industry;
+            this.change = decimal.Round(change, 2);
+        }
+
+        public SectorInformation()
+        {
+
+        }
     }
     public class CompanyInformation
     {
