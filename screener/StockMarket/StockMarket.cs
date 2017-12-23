@@ -55,7 +55,11 @@ namespace screener
 
         public void getIndustryChange()
         {
-            dB.GetIndustyChange();
+            var result = dB.GetIndustyChange().OrderBy(x => x.change).ToList();
+            foreach(var item in result)
+            {
+                Console.WriteLine("{0}, {1}", item.industry, item.change);
+            }
         }
     }
 }

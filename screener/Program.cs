@@ -32,7 +32,10 @@ namespace screener
         static void Main(string[] args)
         {
             StockMarket sm = new StockMarket();
+            //sm.updateCompaniesList();
+            //UpdateStockDataTillToday();
             sm.getIndustryChange();
+            //sm.getLTP();
             return;
         }
     }

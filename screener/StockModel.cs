@@ -16,6 +16,16 @@ namespace StockMarket
         public const string defaultUser = "user";
         public const string defaultIndustry = "noIndustry";
     }
+
+    public class SectorInformation
+    {
+        [Required]
+        public DateTime date { get; set; }
+        [Required]
+        public string industry { get; set; }
+        [Required]
+        public decimal change { get; set; }
+    }
     public class CompanyInformation
     {
         [Required]
@@ -145,6 +155,7 @@ namespace StockMarket
         public DbSet<PortfolioInformation> portfolioInformation { get; set; }
         public DbSet<DailyStockData> stockData { get; set; }
         public DbSet<CircuitBreaker> circuitBreaker { get; set; }
+        public DbSet<SectorInformation> sectorInformation { get; set;}
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=data.db");
@@ -158,6 +169,7 @@ namespace StockMarket
             modelBuilder.Entity<PortfolioInformation>().HasKey(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<DailyStockData>().HasKey(x => new { x.isinNumber, x.date, x.series });
             modelBuilder.Entity<CircuitBreaker>().HasKey(x => new { x.nseSymbol, x.date, x.series });
+            modelBuilder.Entity<SectorInformation>().HasKey( x=> new {x.date, x.industry});
 
             // Set the index for faster query operations
             modelBuilder.Entity<WatchList>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });
@@ -166,6 +178,8 @@ namespace StockMarket
             modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.date, x.symbol, x.isinNumber, x.series });
             modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.symbol, x.series });
             modelBuilder.Entity<DailyStockData>().HasIndex(x => x.date);
+            modelBuilder.Entity<SectorInformation>().HasIndex(x => x.date);
+            modelBuilder.Entity<SectorInformation>().HasIndex(x => x.industry);
             modelBuilder.Entity<CircuitBreaker>().HasIndex(x => x.date);
         }
     }

@@ -7,6 +7,12 @@ using System.Collections.Generic;
 
 namespace screener
 {
+    public class SectorChange
+    {
+        public string industry { get; set; }
+        public decimal change { get; set; }
+        public int numOfCompanies {get; set; }
+    }
     public class StockDB
     {
         public StockDB()
@@ -35,16 +41,43 @@ namespace screener
             }
         }
 
-        public int AddDailyStockData(List<DailyStockData> list, DateTime date)
+        private void UpdateSectorChangeInformation(DateTime date)
         {
+            var symIndMapping = getSymbolToIndustryMapping();
+            using (var db = new StockDataContext())
+            {
+                var ltp = db.stockData.Where(x => x.date.CompareTo(date.Date) == 0).ToList();
+                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
+                var sectorChange = ltp.GroupBy(x => x.industry)
+                                      .Select(x => new SectorInformation()
+                                      {
+                                          date = date,
+                                          industry = x.Key,
+                                          change = decimal.Round(x.Average(y => y.change), 2)
+                                      })
+                                      .OrderBy(x => x.industry);
+                db.sectorInformation.AddRange(sectorChange);
+                Console.WriteLine("Saved : {0}", db.SaveChanges());
+            }
+        }
+
+        public int AddDailyStockData(List<DailyStockData> stockData, DateTime date)
+        {
+            var symIndMapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
-                foreach(var item in list)
-                {
-                    db.stockData.Add(item);
-                }
+                db.stockData.AddRange(stockData);
+                stockData.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
+                var sectorChange = stockData.GroupBy(x => x.industry)
+                                       .Select(x => new SectorInformation() {
+                                                date = date,
+                                                industry = x.Key,
+                                                change = decimal.Round(x.Average(y => y.change), 2)
+                                        })
+                                        .OrderBy(x => x.industry);
+                db.sectorInformation.AddRange(sectorChange);
                 var count = db.SaveChanges();
-                Console.WriteLine("Added {0} companies Stock Data for {1} to db", count, date.ToString());
+                Console.WriteLine("Added {0} rows while updating companies Stock Data for {1} ", count, date.ToString());
                 return count;
             }
         }
@@ -64,38 +97,36 @@ namespace screener
         public List<DailyStockData> GetLTP(int day = 0)
         {
             var lastTradedDate = GetLastTradeDate(day);
-            var symbolIndustryMapping = getSymbolToIndustryMapping();
+            var symIndMapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
-                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).OrderBy(x => x.industry).ToList();
-                foreach (var item in ltp)
-                {
-                    string industry;
-                    item.industry = symbolIndustryMapping.TryGetValue(item.symbol, out industry) ? industry : ConstValues.defaultIndustry;
-                }
+                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) == 0).ToList();
+
+                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
                 return ltp;
             }
         }
 
-        public void GetIndustyChange()
+        public List<DailyStockData> GetLTP(DateTime date)
         {
-            for(int i = 0; i < 10; i++)
+            var symIndMapping = getSymbolToIndustryMapping();
+            using(var db = new StockDataContext())
             {
-                var stockPrices = GetLTP(i);
+                var ltp = db.stockData.Where(x => x.date.CompareTo(date.Date) == 0).ToList();
 
-                var result = (from stock in stockPrices
-                            group stock by stock.industry into segments
-                            select new {
-                                Industry = segments.Key,
-                                change = Math.Round(segments.Average(x => x.change), 2)
-                            })
-                            .OrderBy(x => x.change)
-                            .ToList();
+                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
+                return ltp;
+            }
+        }
 
-                foreach(var item in result)
-                {
-                    Console.WriteLine("{0} {1}", item.Industry, item.change);
-                }
+        public List<SectorChange> GetIndustyChange(int day = 0)
+        {
+            var lastTradedDate = GetLastTradeDate(day);
+            using(var db = new StockDataContext())
+            {
+                return db.sectorInformation.Where(x => x.date.CompareTo(lastTradedDate.Date) == 0)
+                                           .Select(x => new SectorChange() { industry = x.industry, change = x.change})
+                                           .ToList();
             }
         }
     }
