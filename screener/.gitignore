@@ -2,3 +2,5 @@ bin
 obj
 Migrations/*
 data.db
+*/webapp/*
+C:\source\dotnetcore\stockScreenerV2\webapp\*

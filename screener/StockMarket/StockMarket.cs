@@ -1,16 +1,17 @@
 using System;
 using System.Linq;
-
-using StockMarket;
-using StockDataParser;
 using System.Diagnostics;
 using System.Collections.Generic;
+
+using StockDataParser;
+using StockDatabase;
 
 namespace screener
 {
     public class StockMarket
     {
         StockDB dB;
+
         public StockMarket()
         {
             dB = new StockDB();
@@ -72,9 +73,13 @@ namespace screener
             dB.GetSectorMonthlyStats();
         }
 
-        public void GetStockStats()
+        public List<StockStats> GetStockStats()
         {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
             var list = dB.GetStockStats();
+            sp.Stop();
+            /*/
             foreach(var item in list)
             {
                 Console.Write("{0} {1}", item.symbol, item.series);
@@ -84,7 +89,9 @@ namespace screener
                         Console.Write(" {0}/{1} ", i, item.avgVolumeChage[count++]);
                 }
                 Console.WriteLine("");
-            }
+            }*/
+            Console.WriteLine("Time taken: {0}", sp.ElapsedMilliseconds);
+            return list;
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-
-using StockMarket;
-using StockDataParser;
+using StockDatabase;
 
 namespace screener
 {

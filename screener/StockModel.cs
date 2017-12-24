@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
     dotnet ef migrations add InitialCreate &&  dotnet ef database update
  */
 
-namespace StockMarket
+namespace StockDatabase
 {
     public class ConstValues
     {

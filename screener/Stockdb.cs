@@ -1,15 +1,17 @@
 using System;
 using System.Linq;
-
-using StockMarket;
-using StockDataParser;
 using System.Collections.Generic;
 
-namespace screener
+using StockDatabase;
+using StockDataParser;
+
+
+namespace StockDatabase
 {
 
     public class StockStats
     {
+        public string sector { get; set; }
         public string symbol { get; set; }
         public string series { get; set; }
         public decimal[] avgPriceChange { get; set; }
@@ -172,30 +174,30 @@ namespace screener
             }
         }
 
-        private StockStats getStockStats(string symbol, string series, List<DailyStockData> list)
+        private StockStats getStockStats(string symbol, string series, string sector, IEnumerable<DailyStockData> list)
         {
             StockStats stats = new StockStats();
             // Interval Range. All number are days
-            var int_list = new List<int>{5, 10, 20, 30, 60, 120, 240};
+            var day_interval = new List<int>{5, 10, 20, 30, 60, 120, 240};
 
             // Allocate array and initialize to 0
-            stats.avgPriceChange = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
-            stats.avgVolumeChage = Enumerable.Repeat<decimal>(0, int_list.Count()+1).ToArray();
+            stats.avgPriceChange = Enumerable.Repeat<decimal>(0, day_interval.Count()+1).ToArray();
+            stats.avgVolumeChage = Enumerable.Repeat<decimal>(0, day_interval.Count()+1).ToArray();
 
             // Set the symbol and series for this stock
-            (stats.symbol, stats.series) = (symbol, series);
+            (stats.symbol, stats.series, stats.sector) = (symbol, series, sector);
 
             // Set today's change and deliverable volume
-            (stats.avgPriceChange[0], stats.avgVolumeChage[0]) = (list[0].change, list[0].deliverableQty);
+            (stats.avgPriceChange[0], stats.avgVolumeChage[0]) = (list.ElementAt(0).change, list.ElementAt(0).deliverableQty);
 
             // Compute the avg price and deliverable volume
-            for(int i = 0; i < int_list.Count; i++)
+            for(int i = 0; i < day_interval.Count; i++)
             {
                 // Check if the data exists for this interval
-                if(list.Count() > int_list[i])
+                if(list.Count() > day_interval[i])
                 {
-                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list[0].lastPrice - list[int_list[i]].open) / list[int_list[i]].open, 2);
-                    stats.avgVolumeChage[i+1] = decimal.Round((decimal)list.Take(int_list[i]).Average(x => x.deliverableQty), 2);
+                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list.ElementAt(0).lastPrice - list.ElementAt(day_interval[i]).open) / list.ElementAt(day_interval[i]).open, 2);
+                    stats.avgVolumeChage[i+1] = decimal.Round((decimal)list.Take(day_interval[i]).Average(x => x.deliverableQty), 2);
                 }
             }
             return stats;
@@ -203,13 +205,17 @@ namespace screener
 
         public List<StockStats> GetStockStats()
         {
+            var mapping = getSymbolToIndustryMapping();
+            string sector;
             using(var db = new StockDataContext())
             {
                 return db.stockData.Where(x => (x.series == "BE" || x.series == "EQ"))
                                    .GroupBy(x => new {x.symbol, x.series})
                                    .OrderBy(x => x.Key.symbol)
                                    .ThenBy(x => x.Key.series)
-                                   .Select(x => getStockStats(x.Key.symbol, x.Key.series, x.OrderByDescending(y => y.date).ToList()))
+                                   .Select(x => getStockStats(x.Key.symbol, x.Key.series,
+                                                              mapping.TryGetValue(x.Key.symbol, out sector) ? sector : ConstValues.defaultIndustry,
+                                                              x.OrderByDescending(y => y.date)))
                                    .ToList();
             }
         }

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using TinyCsvParser;
 using TinyCsvParser.Mapping;
 
-using StockMarket;
+using StockDatabase;
 
 
 namespace StockDataParser
