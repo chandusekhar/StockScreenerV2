@@ -1,7 +1,7 @@
 <template>
         <div>
             <h1 align="center">Today's Report</h1>
-            <div v-if="displayItem.length" >
+            <div v-if="stockPrices.length" >
                 <div class="input-group input-group-lg" >
                     <span class="input-group-addon" id="sizing-addon1">
                         <i class="glyphicon glyphicon-search"></i>
@@ -22,9 +22,21 @@
                             </th>
                         </thead>
                         <tbody>
+                            <tr>
+                                <td></td>
+                                <td v-for="item in table_display_data">
+                                    <p v-if="!item.show_total"></p>
+                                    <p v-else>
+                                        {{ (displayItem.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                    </p>
+                                </td>
+                            </tr>
                             <tr v-for="(item, index) in displayItem">
                                 <td>{{index+1}}</td>
-                                <td v-for="field in table_display_data">{{item[field.data_field_name]}}</td>
+                                <td v-for="field in table_display_data">
+                                    <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                    <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

@@ -159,11 +159,11 @@ namespace StockDatabase
 
         public List<DailyStockData> GetLTP(DateTime date)
         {
-            var symIndMapping = getSymbolToIndustryMapping();
+            var symSectorMapping = getSymbolToIndustryMapping();
             using (var db = new StockDataContext())
             {
-                var ltp = db.stockData.Where(x => x.date.CompareTo(date.Date) == 0).ToList();
-                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
+                var ltp = db.stockData.Where(x => (x.date.CompareTo(date.Date) == 0) && (x.series == "EQ" || x.series == "BE" || x.series == "SM")).ToList();
+                ltp.ForEach(x => x.industry = symSectorMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
                 return ltp;
             }
         }

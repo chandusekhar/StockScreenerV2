@@ -13,13 +13,15 @@ interface DisplayItems {
     header_field_name: string;
     data_field_name: string;
     sort_link: boolean;
+    show_total: boolean;
+    color_value: boolean;
 }
 
 @Component
 export default class TodayComponent extends Vue {
     searchQuery: string = "";
     sortReverse: number = -1;
-    searchPlaceHolder: string = "sym:<symbol>,sec:<sector>,ser:<series>,default companyName";
+    searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
     // Update the status in statusMessage
     statusMessage: string = "Fetching list of companies from server";
 
@@ -29,11 +31,11 @@ export default class TodayComponent extends Vue {
 
     // List of columns and the respective data fields
     table_display_data: DisplayItems[] = [
-        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true },
-        { header_field_name: "Series", data_field_name: "series", sort_link: false },
-        { header_field_name: "Sector", data_field_name: "industry", sort_link: true },
-        { header_field_name: "Change", data_field_name: "change", sort_link: true },
-        { header_field_name: "Last Price", data_field_name: "lastPrice", sort_link: true },
+        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false },
+        { header_field_name: "Series", data_field_name: "series", sort_link: false, show_total: false, color_value: false},
+        { header_field_name: "Sector", data_field_name: "industry", sort_link: true, show_total: false, color_value: false },
+        { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: true, color_value: true },
+        { header_field_name: "Last Price", data_field_name: "lastPrice", sort_link: true, show_total: false, color_value: false },
     ];
 
     mounted(): void {
@@ -50,7 +52,6 @@ export default class TodayComponent extends Vue {
         let searchParam: string = query.substr(4, query.length);
 
         if (query.indexOf("ser:") == 0) this.displayItem = this.stockPrices.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sym:") == 0) this.displayItem = this.stockPrices.filter(x => x.symbol.toLowerCase().indexOf(searchParam) >= 0);
         else if (query.indexOf("sec:") == 0) this.displayItem = this.stockPrices.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
         else this.displayItem = this.stockPrices.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
