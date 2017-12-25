@@ -38,12 +38,12 @@ namespace webapp.Controllers
             try
             {
                 var result = stockMarket.getLTP().Select(x => new {
-                    change = x.change,
-                    symbol = x.symbol,
-                    series = x.series,
-                    lastPrice = x.lastPrice,
-                    industry = x.industry
-                }).ToList();
+                                                        change = x.change,
+                                                        symbol = x.symbol,
+                                                        series = x.series,
+                                                        lastPrice = x.lastPrice,
+                                                        industry = x.industry})
+                                                .ToList();
                 return Ok(result);
             }
             catch(Exception)
