@@ -32,10 +32,10 @@ export default class TodayComponent extends Vue {
     // List of columns and the respective data fields
     table_display_data: DisplayItems[] = [
         { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Series", data_field_name: "series", sort_link: false, show_total: false, color_value: false},
         { header_field_name: "Sector", data_field_name: "industry", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "Last Price", data_field_name: "lastPrice", sort_link: true, show_total: false, color_value: false }
+        { header_field_name: "Last Price", data_field_name: "lastPrice", sort_link: true, show_total: false, color_value: false },
+        { header_field_name: "Series", data_field_name: "series", sort_link: false, show_total: false, color_value: false}
     ];
 
     mounted(): void {

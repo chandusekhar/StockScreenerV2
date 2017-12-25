@@ -9,11 +9,10 @@ table th {
     text-align: left;
 }
 
-
 table th a {
     color: white
 }
-table td {
+table tr {
     text-align: left;
     vertical-align: center;
     padding:  10px;
