@@ -31,5 +31,25 @@ namespace webapp.Controllers
                return NotFound("Exception in CompanyList() function");
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult  TodayReport()
+        {
+            try
+            {
+                var result = stockMarket.getLTP().Select(x => new {
+                    change = x.change,
+                    symbol = x.symbol,
+                    series = x.series,
+                    lastPrice = x.lastPrice,
+                    industry = x.industry
+                }).ToList();
+                return Ok(result);
+            }
+            catch(Exception)
+            {
+               return NotFound("Exception in TodayReport() function");
+            }
+        }
     }
 }
