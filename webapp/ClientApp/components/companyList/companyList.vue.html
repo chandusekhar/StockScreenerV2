@@ -1,38 +1,38 @@
 <template>
     <div>
-        <h1>List Of Companies in NSE</h1>
+        <h1 align="center">List Of Companies in NSE</h1>
         <div v-if="companyList.length" >
             <div class="input-group input-group-lg" >
                 <span class="input-group-addon" id="sizing-addon1">
                     <i class="glyphicon glyphicon-search"></i>
                 </span>
-                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQry" v-on:keyup="onSearch" placeholder="">
+                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch"
+                       v-bind:placeholder="searchPlaceHolder">
             </div>
-            <div class="container-fluid table-responsive" style="overflow: scroll; height: 85vh">
-                <table class="table">
+
+            <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                <table class="table table-hover">
                     <thead>
-                        <th scope="col">#</th>
-                        <th>CompanyName</th>
-                        <th>Symbol</th>
-                        <th>Series</th>
-                        <th>Sector</th>
-                        <th>Last Price</th>
+                        <th>#</th>
+                        <th v-for="item in table_display_data">
+                            <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link">
+                               {{item.header_field_name}}
+                            </a>
+                            <i v-else>{{item.header_field_name}}</i>
+                        </th>
                     </thead>
                     <tbody>
-                            <tr v-for="(item, index) in companyList">
-                                <td>{{index+1}}</td>
-                                <td>{{item.companyName}}</td>
-                                <td>{{item.symbol}}</td>
-                                <td>{{item.series}}</td>
-                                <td>{{item.industry}}</td>
-                                <td>{{item.ltp}}</td>
-                            </tr>
+                        <tr v-for="(item, index) in displayItem">
+                            <td>{{index+1}}</td>
+                            <td v-for="field in table_display_data">{{item[field.data_field_name]}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <p v-else>{{statusMessage}}</p>
+        <p style="color: red" v-else>{{statusMessage}}</p>
     </div>
 </template>
 
+<style src="../common_css/table.css"></style>
 <script src="./companyList.ts"></script>

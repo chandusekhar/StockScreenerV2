@@ -15,6 +15,7 @@ namespace StockDatabase
         public string industry { get; set; }
         public string companyName { get; set; }
         public decimal ltp { get; set; }
+        public decimal change { get; set; }
     }
 
     public class StockStats

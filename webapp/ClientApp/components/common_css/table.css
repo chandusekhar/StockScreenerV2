@@ -1,0 +1,23 @@
+table {
+    margin-top: 10px;
+}
+table th {
+    vertical-align: center;
+    background-color: #4CAF50;
+    color: white;
+    padding:  10px;
+    text-align: left;
+}
+
+
+table th a {
+    color: white
+}
+table td {
+    text-align: left;
+    vertical-align: center;
+    padding:  10px;
+}
+tr:nth-child(odd) {
+    background-color: #f2f2f2;
+}
