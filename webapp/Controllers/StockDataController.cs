@@ -33,7 +33,7 @@ namespace webapp.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult  TodayReport()
+        public IActionResult  TodayStockReport()
         {
             try
             {
@@ -48,7 +48,21 @@ namespace webapp.Controllers
             }
             catch(Exception)
             {
-               return NotFound("Exception in TodayReport() function");
+               return NotFound("Exception in TodayStockReport() function");
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult  TodayVolumeReport()
+        {
+            try
+            {
+                var result = stockMarket.GetStockStats().ToList();
+                return Ok(result);
+            }
+            catch(Exception)
+            {
+               return NotFound("Exception in TodayVolumeReport() function");
             }
         }
     }

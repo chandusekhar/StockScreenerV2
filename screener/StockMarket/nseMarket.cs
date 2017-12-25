@@ -175,7 +175,7 @@ namespace StockDataParser
             CsvParser<DailyStockDeliveryPosition> csvParser = new CsvParser<DailyStockDeliveryPosition>(csvParserOptions, csvMapper);
 
             var result = csvParser.ReadFromFile(csvFile, Encoding.ASCII)
-                                  .Skip(4)  // Skip the first four lines as they contain only header
+                                  .Skip(3)  // Skip the first four lines as they contain only header
                                   .Select(x => x.Result);
 
             return result;

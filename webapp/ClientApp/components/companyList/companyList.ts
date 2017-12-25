@@ -19,11 +19,12 @@ export default class companyListComponent extends Vue {
     searchQuery: string = "";
     sortReverse: number = -1;
     searchPlaceHolder: string = "sym:<symbol>,sec:<sector>,ser:<series>,default companyName";
+    page_header: string = "Company List in NSE";
     // Update the status in statusMessage
     statusMessage: string = "Fetching list of companies from server";
 
     // Component specific code
-    companyList: CompanyInfo[] = [];
+    fetchedData: CompanyInfo[] = [];
     displayItem: CompanyInfo[] = [];
 
     // List of columns and the respective data fields
@@ -38,7 +39,7 @@ export default class companyListComponent extends Vue {
         // Call the HTTP API to fetch company list in json format
         fetch('api/StockData/CompanyList')
             .then(response => response.json() as Promise<CompanyInfo[]>)
-            .then(data => this.companyList = this.displayItem = data)
+            .then(data => this.fetchedData = this.displayItem = data)
             .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
     }
 
@@ -47,10 +48,10 @@ export default class companyListComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = this.companyList.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sym:") == 0) this.displayItem = this.companyList.filter(x => x.symbol.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sec:") == 0) this.displayItem = this.companyList.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = this.companyList.filter(x => (x.companyName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        if (query.indexOf("ser:") == 0) this.displayItem = this.fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sym:") == 0) this.displayItem = this.fetchedData.filter(x => x.symbol.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sec:") == 0) this.displayItem = this.fetchedData.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
+        else this.displayItem = this.fetchedData.filter(x => (x.companyName.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
     //Callback function to sort the list
