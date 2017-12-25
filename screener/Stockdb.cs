@@ -2,12 +2,20 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-using StockDatabase;
 using StockDataParser;
 
 
 namespace StockDatabase
 {
+
+    public class CompanyInfo
+    {
+        public string symbol { get; set; }
+        public string series { get; set; }
+        public string industry { get; set; }
+        public string companyName { get; set; }
+        public decimal ltp { get; set; }
+    }
 
     public class StockStats
     {
@@ -46,11 +54,29 @@ namespace StockDatabase
         public string industry { get; set; }
         public List<MonthlyStats> stats;
     }
+
+
     public class StockDB
     {
         public StockDB()
         {
 
+        }
+
+        public List<CompanyInfo> getCompanyList()
+        {
+            using(var db = new StockDataContext())
+            {
+                var result = db.companyInformation.Select(x => new CompanyInfo() {
+                                                    companyName = x.companyName,
+                                                    symbol = x.symbol,
+                                                    series = x.series,
+                                                    industry = x.industry
+                                                })
+                                                .ToList();
+                return result;
+
+            }
         }
 
         private Dictionary<string, string> getSymbolToIndustryMapping()

@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "screener/screener.csproj"
+                "../screener/screener.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

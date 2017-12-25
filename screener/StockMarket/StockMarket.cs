@@ -28,6 +28,11 @@ namespace screener
             dB.AddCompaniesToList(list);
         }
 
+        public List<CompanyInfo> getCompanyList()
+        {
+            return dB.getCompanyList();
+        }
+
         public void updateBhavData(DateTime date)
         {
             NseStockData nse = new NseStockData();
@@ -79,17 +84,6 @@ namespace screener
             sp.Start();
             var list = dB.GetStockStats();
             sp.Stop();
-            /*/
-            foreach(var item in list)
-            {
-                Console.Write("{0} {1}", item.symbol, item.series);
-                {
-                    int count = 0;
-                    foreach(var i in item.avgPriceChange)
-                        Console.Write(" {0}/{1} ", i, item.avgVolumeChage[count++]);
-                }
-                Console.WriteLine("");
-            }*/
             Console.WriteLine("Time taken: {0}", sp.ElapsedMilliseconds);
             return list;
         }
