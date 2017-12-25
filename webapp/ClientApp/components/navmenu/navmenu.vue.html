@@ -21,15 +21,16 @@
                             <span class="glyphicon glyphicon-th-list"></span> CompanyList
                         </router-link>
                     </li>
-                    <li>
-                        <router-link to="/todayStockReport">
-                            <span class="glyphicon glyphicon-stats"></span> Today's Stock Report
-                        </router-link>
-                    </li>
-                    <li>
-                        <router-link to="/todayVolumeReport">
-                            <span class="glyphicon glyphicon-stats"></span> Today's Volume Report
-                        </router-link>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <span class="glyphicon glyphicon-stats"></span> Today's Report
+                                <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li> <router-link to="/todayStockReport"> Stock Report </router-link> </li>
+                            <li> <router-link to="/todayVolumeReport"> Volume Report </router-link> </li>
+                            <li> <router-link to="/todaySectorReport"> Sectory Report </router-link> </li>
+                        </ul>
                     </li>
                 </ul>
             </div>

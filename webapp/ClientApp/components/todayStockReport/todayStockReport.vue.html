@@ -14,10 +14,10 @@
                     <thead>
                         <th>#</th>
                         <th v-for="item in table_display_data">
-                            <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link">
+                            <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
                                 {{item.header_field_name}}
                             </a>
-                            <i v-else>{{item.header_field_name}}</i>
+                            <i v-bind:title="item.data_field_name" v-else>{{item.header_field_name}}</i>
                         </th>
                     </thead>
                     <tbody>

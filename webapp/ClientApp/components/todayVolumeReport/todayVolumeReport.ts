@@ -41,7 +41,7 @@ export default class TodayComponent extends Vue {
         { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "Volume Change vs avg 5d", data_field_name: "volumeChange", sort_link: true, show_total: true, color_value: false}
+        { header_field_name: "Volume Change vs avg 5d", data_field_name: "volumeChange", sort_link: true, show_total: true, color_value: true}
     ];
 
     mounted(): void {
