@@ -28,7 +28,7 @@
                             </tr>
                             <tr v-for="(item, index) in displayItemSectorChange">
                                 <td>{{index+1}}</td>
-                                <td v-for="field in table_sector_display_data">
+                                <td v-for="field in table_sector_display_data" v-on:click="onClick(item.sector)">
                                     <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
                                     <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
                                 </td>
