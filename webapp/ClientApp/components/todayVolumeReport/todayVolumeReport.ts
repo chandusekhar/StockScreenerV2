@@ -28,7 +28,7 @@ export default class TodayComponent extends Vue {
     searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
     page_header: string = "Today's Volume Report";
     // Update the status in statusMessage
-    statusMessage: string = "Fetching list of companies from server";
+    statusMessage: string = "Fetching today's volume report from server";
 
     // Component specific code
     fetchedData: StockStats[] = [];

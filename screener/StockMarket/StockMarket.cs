@@ -65,11 +65,7 @@ namespace screener
 
         public List<SectorChange> getSectorChange()
         {
-            var result = dB.GetSectorChange(1).OrderBy(x => x.change).ToList();
-            foreach(var item in result)
-            {
-                Console.WriteLine("{0}, {1}", item.sector, item.change);
-            }
+            var result = dB.GetSectorChange(0).OrderBy(x => x.change).ToList();
             return result;
         }
 

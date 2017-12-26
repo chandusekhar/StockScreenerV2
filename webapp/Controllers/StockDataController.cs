@@ -65,5 +65,19 @@ namespace webapp.Controllers
                return NotFound("Exception in TodayVolumeReport() function");
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult  TodaySectorChange()
+        {
+            try
+            {
+                var result = stockMarket.getSectorChange();
+                return Ok(result);
+            }
+            catch(Exception)
+            {
+               return NotFound("Exception in TodaySectorReport() function");
+            }
+        }
     }
 }

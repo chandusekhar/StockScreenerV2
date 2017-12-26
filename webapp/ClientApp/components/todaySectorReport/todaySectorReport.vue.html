@@ -1,0 +1,88 @@
+<template>
+    <div>
+        <div class="row">
+            <h2 align="center"> {{page_header}} </h2>
+        </div>
+        <div class="row" v-if="fetchedData.length">
+            <div class="col-sm-3">
+                <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                    <table class="table table-hover">
+                        <thead>
+                            <th>#</th>
+                            <th v-for="item in table_sector_display_data">
+                                <a v-on:click="sortByLeftPanel(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
+                                    {{item.header_field_name}}
+                                </a>
+                                <i v-bind:title="item.data_field_name" v-else>{{item.header_field_name}}</i>
+                            </th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td v-for="item in table_sector_display_data">
+                                    <i v-if="!item.show_total"></i>
+                                    <i v-else>
+                                        {{ (displayItem.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                    </i>
+                                </td>
+                            </tr>
+                            <tr v-for="(item, index) in displayItemSectorChange">
+                                <td>{{index+1}}</td>
+                                <td v-for="field in table_sector_display_data">
+                                    <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                    <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <div>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-addon" id="sizing-addon1">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </span>
+                        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
+                    </div>
+
+                    <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                        <table class="table table-hover">
+                            <thead>
+                                <th>#</th>
+                                <th v-for="item in table_display_data">
+                                    <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
+                                        {{item.header_field_name}}
+                                    </a>
+                                    <i v-bind:title="item.data_field_name" v-else>{{item.header_field_name}}</i>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td v-for="item in table_display_data">
+                                        <i v-if="!item.show_total"></i>
+                                        <i v-else>
+                                            {{ (displayItem.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                        </i>
+                                    </td>
+                                </tr>
+                                <tr v-for="(item, index) in displayItem">
+                                    <td>{{index+1}}</td>
+                                    <td v-for="field in table_display_data">
+                                        <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                        <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p style="color: red" v-else>{{statusMessage}}</p>
+    </div>
+</template>
+
+<style src="../common_css/table.css"></style>
+<script src="./todaySectorReport.ts"></script>
