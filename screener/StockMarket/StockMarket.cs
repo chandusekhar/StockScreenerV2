@@ -44,8 +44,9 @@ namespace screener
         public void updateBhavDataToLatest()
         {
             var date = getLastDate();
-            var count = DateTime.Now.Date.CompareTo(date);
-            for(int i = 1; i <= count; i++)
+            //var count = DateTime.Now.Date.CompareTo(date);
+            TimeSpan count = DateTime.Now - date;
+            for(int i = 1; i <= count.Days; i++)
             {
                 Console.WriteLine("Updating data for {0}", date.AddDays(i).Date);
                 updateBhavData(date.AddDays(i));

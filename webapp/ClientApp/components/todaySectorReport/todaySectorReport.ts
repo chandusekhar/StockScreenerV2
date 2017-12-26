@@ -32,10 +32,10 @@ export default class TodayStockComponent extends Vue {
     statusMessage: string = "Fetching Sector report from server";
 
     // Component specific code
-    fetchedData: StockPrice[] = [];
+    fetchedStockPrices: StockPrice[] = [];
     displayItem: StockPrice[] = [];
 
-    fetchedDataSectorChange: SectorChange[] = [];
+    fetchedSectorChange: SectorChange[] = [];
     displayItemSectorChange: SectorChange[] = [];
 
     // List of columns and the respective data fields
@@ -55,12 +55,12 @@ export default class TodayStockComponent extends Vue {
         // Call the HTTP API to fetch company list in json format
         fetch('api/StockData/TodayStockReport')
             .then(response => response.json() as Promise<StockPrice[]>)
-            .then(data => this.fetchedData = this.displayItem = data)
+            .then(data => { this.fetchedStockPrices = this.displayItem = data; this.statusMessage = "";})
             .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
 
         fetch('api/StockData/TodaySectorChange')
             .then(response => response.json() as Promise<SectorChange[]>)
-            .then(data => this.fetchedDataSectorChange = this.displayItemSectorChange = data)
+            .then(data => this.fetchedSectorChange = this.displayItemSectorChange = data)
             .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
     }
 
@@ -69,9 +69,9 @@ export default class TodayStockComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = this.fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sec:") == 0) this.displayItem = this.fetchedData.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = this.fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        if (query.indexOf("ser:") == 0) this.displayItem = this.fetchedStockPrices.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sec:") == 0) this.displayItem = this.fetchedStockPrices.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
+        else this.displayItem = this.fetchedStockPrices.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
     //Callback function to sort the list
@@ -90,7 +90,7 @@ export default class TodayStockComponent extends Vue {
         }
     }
 
-    sortByLeftPanel(sortKey: string): void {
+    LeftPanelsortBy(sortKey: string): void {
         this.sortReverse *= -1;
         switch (sortKey) {
             case "sector":

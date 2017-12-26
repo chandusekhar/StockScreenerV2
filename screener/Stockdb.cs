@@ -225,7 +225,7 @@ namespace StockDatabase
                 // Check if the data exists for this interval
                 if(list.Count() > day_interval[i])
                 {
-                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list.ElementAt(0).lastPrice - list.ElementAt(day_interval[i]).open) / list.ElementAt(day_interval[i]).open, 2);
+                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list.ElementAt(1).lastPrice - list.ElementAt(day_interval[i]).open) / list.ElementAt(day_interval[i]).open, 2);
                     stats.avgVolumeChage[i+1] = decimal.Round((decimal)list.Skip(1).Take(day_interval[i]).Average(x => x.deliverableQty), 2);
                 }
             }

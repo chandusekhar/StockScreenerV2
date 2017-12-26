@@ -8,9 +8,12 @@ interface StockStats {
     sector: string;
     avgPriceChange: number[];
     avgVolumeChage: number[];
+
+    // Computed values
     priceChange: number;
     volumeChange: number;
     volume: number;
+    priceChange5d: number;
 }
 
 interface DisplayItems {
@@ -41,7 +44,8 @@ export default class TodayComponent extends Vue {
         { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "Volume Change vs avg 5d", data_field_name: "volumeChange", sort_link: true, show_total: true, color_value: true}
+        { header_field_name: "Change 5d avg", data_field_name: "priceChange5d", sort_link: true, show_total: false, color_value: true },
+        { header_field_name: "Volume Change vs avg 5d", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true}
     ];
 
     mounted(): void {
@@ -52,6 +56,7 @@ export default class TodayComponent extends Vue {
                 this.fetchedData = data;
                 this.fetchedData.forEach(x => {
                     x.priceChange = x.avgPriceChange[0];
+                    x.priceChange5d = x.avgPriceChange[1];
                     x.volumeChange = 1;
                     if(x.avgVolumeChage[1] != 0)
                         x.volumeChange = Number(((x.avgVolumeChage[0] - x.avgVolumeChage[1])/x.avgVolumeChage[1]).toFixed(2));
@@ -86,6 +91,7 @@ export default class TodayComponent extends Vue {
             case "volumeChange":
             case "priceChange":
             case "volume":
+            case "priceChange5d":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;
         }

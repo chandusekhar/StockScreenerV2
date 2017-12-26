@@ -3,14 +3,14 @@
         <div class="row">
             <h2 align="center"> {{page_header}} </h2>
         </div>
-        <div class="row" v-if="fetchedData.length">
+        <div class="row">
             <div class="col-sm-3">
                 <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
                     <table class="table table-hover">
                         <thead>
                             <th>#</th>
                             <th v-for="item in table_sector_display_data">
-                                <a v-on:click="sortByLeftPanel(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
+                                <a v-on:click="LeftPanelsortBy(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
                                     {{item.header_field_name}}
                                 </a>
                                 <i v-bind:title="item.data_field_name" v-else>{{item.header_field_name}}</i>
@@ -80,7 +80,7 @@
                 </div>
             </div>
         </div>
-        <p style="color: red" v-else>{{statusMessage}}</p>
+        <p style="color: red">{{statusMessage}}</p>
     </div>
 </template>
 
