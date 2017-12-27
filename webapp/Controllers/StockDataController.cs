@@ -42,7 +42,8 @@ namespace webapp.Controllers
                                                         symbol = x.symbol,
                                                         series = x.series,
                                                         lastPrice = x.lastPrice,
-                                                        industry = x.industry})
+                                                        industry = x.industry,
+                                                        qty = x.totalTradedQty})
                                                 .ToList();
                 return Ok(result);
             }

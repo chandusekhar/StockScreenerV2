@@ -5,7 +5,7 @@
         </div>
         <div class="row">
             <div class="col-sm-3">
-                <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItemSectorChange.length">
                     <table class="table table-hover">
                         <thead>
                             <th>#</th>
@@ -36,8 +36,9 @@
                         </tbody>
                     </table>
                 </div>
+                <p style="color: red" v-else>{{statusMessage}}</p>
             </div>
-            <div class="col-sm-9">
+            <div class="col-sm-9" >
                 <div>
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon" id="sizing-addon1">
@@ -46,7 +47,7 @@
                         <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
                     </div>
 
-                    <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                    <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItem.length">
                         <table class="table table-hover">
                             <thead>
                                 <th>#</th>
@@ -80,7 +81,6 @@
                 </div>
             </div>
         </div>
-        <p style="color: red">{{statusMessage}}</p>
     </div>
 </template>
 

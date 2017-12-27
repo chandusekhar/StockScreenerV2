@@ -24,6 +24,8 @@ interface DisplayItems {
     color_value: boolean;
 }
 
+let fetchedData: StockStats[] = [];
+
 @Component
 export default class TodayComponent extends Vue {
     searchQuery: string = "";
@@ -34,7 +36,6 @@ export default class TodayComponent extends Vue {
     statusMessage: string = "Fetching today's volume report from server";
 
     // Component specific code
-    fetchedData: StockStats[] = [];
     displayItem: StockStats[] = [];
 
     // List of columns and the respective data fields
@@ -44,28 +45,35 @@ export default class TodayComponent extends Vue {
         { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "Change 5d avg", data_field_name: "priceChange5d", sort_link: true, show_total: false, color_value: true },
+        { header_field_name: "5d Change", data_field_name: "priceChange5d", sort_link: true, show_total: false, color_value: true },
         { header_field_name: "Volume Change vs avg 5d", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true}
     ];
 
-    mounted(): void {
-        // Call the HTTP API to fetch company list in json format
-        fetch('api/StockData/TodayVolumeReport')
-            .then(response => response.json() as Promise<StockStats[]>)
-            .then(data => {
-                this.fetchedData = data;
-                this.fetchedData.forEach(x => {
-                    x.priceChange = x.avgPriceChange[0];
-                    x.priceChange5d = x.avgPriceChange[1];
-                    x.volumeChange = 1;
-                    if(x.avgVolumeChage[1] != 0)
-                        x.volumeChange = Number(((x.avgVolumeChage[0] - x.avgVolumeChage[1])/x.avgVolumeChage[1]).toFixed(2));
+    private updateFetchedData(x: StockStats) {
+        x.priceChange = x.avgPriceChange[0];
+        x.priceChange5d = x.avgPriceChange[1];
+        x.volumeChange = 1;
+        if(x.avgVolumeChage[1] != 0)
+            x.volumeChange = Number(((x.avgVolumeChage[0] - x.avgVolumeChage[1])/x.avgVolumeChage[1]).toFixed(2));
 
-                    x.volume = x.avgVolumeChage[0];
-                });
-                this.displayItem = this.fetchedData;
-            })
-            .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
+        x.volume = x.avgVolumeChage[0];
+    }
+
+    mounted(): void {
+        if(fetchedData.length == 0) {
+            // Call the HTTP API to fetch company list in json format
+            fetch('api/StockData/TodayVolumeReport')
+                .then(response => response.json() as Promise<StockStats[]>)
+                .then(data => {
+                    fetchedData = data;
+                    fetchedData.forEach(x => this.updateFetchedData(x));
+                    this.displayItem = fetchedData;
+                    this.statusMessage = "";
+                })
+                .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
+        } else {
+            this.displayItem = fetchedData;
+        }
     }
 
     // Callback function on search
@@ -73,9 +81,9 @@ export default class TodayComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = this.fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sec:") == 0) this.displayItem = this.fetchedData.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = this.fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        if (query.indexOf("ser:") == 0) this.displayItem = fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sec:") == 0) this.displayItem = fetchedData.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
+        else this.displayItem = fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
     //Callback function to sort the list

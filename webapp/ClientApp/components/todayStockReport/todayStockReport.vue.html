@@ -1,14 +1,13 @@
 <template>
     <div>
         <h1 align="center"> {{page_header}} </h1>
-        <div v-if="fetchedData.length">
-            <div class="input-group input-group-lg">
-                <span class="input-group-addon" id="sizing-addon1">
-                    <i class="glyphicon glyphicon-search"></i>
-                </span>
-                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
-            </div>
-
+        <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">
+                <i class="glyphicon glyphicon-search"></i>
+            </span>
+            <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
+        </div>
+        <div v-if="displayItem.length">
             <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
                 <table class="table table-hover">
                     <thead>

@@ -7,6 +7,7 @@ interface StockPrice {
     industry: string;
     change: number;
     lastPrice: number;
+    qty: number;
 }
 
 interface DisplayItems {
@@ -17,6 +18,7 @@ interface DisplayItems {
     color_value: boolean;
 }
 
+let fetchedData: StockPrice[] = [];
 @Component
 export default class TodayStockComponent extends Vue {
     searchQuery: string = "";
@@ -27,7 +29,6 @@ export default class TodayStockComponent extends Vue {
     statusMessage: string = "Fetching list of companies from server";
 
     // Component specific code
-    fetchedData: StockPrice[] = [];
     displayItem: StockPrice[] = [];
 
     // List of columns and the respective data fields
@@ -36,15 +37,20 @@ export default class TodayStockComponent extends Vue {
         { header_field_name: "Sector", data_field_name: "industry", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: true, color_value: true },
         { header_field_name: "Last Price", data_field_name: "lastPrice", sort_link: true, show_total: false, color_value: false },
+        { header_field_name: "Total Traded Qty", data_field_name: "qty", sort_link: true, show_total: false, color_value: false },
         { header_field_name: "Series", data_field_name: "series", sort_link: false, show_total: false, color_value: false}
     ];
 
     mounted(): void {
-        // Call the HTTP API to fetch company list in json format
-        fetch('api/StockData/TodayStockReport')
-            .then(response => response.json() as Promise<StockPrice[]>)
-            .then(data => this.fetchedData = this.displayItem = data)
-            .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
+        if(fetchedData.length == 0) {
+            // Call the HTTP API to fetch company list in json format
+            fetch('api/StockData/TodayStockReport')
+                .then(response => response.json() as Promise<StockPrice[]>)
+                .then(data => {fetchedData = this.displayItem = data; this.statusMessage = "";})
+                .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
+        } else {
+            this.displayItem = fetchedData;
+        }
     }
 
     // Callback function on search
@@ -52,9 +58,9 @@ export default class TodayStockComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = this.fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sec:") == 0) this.displayItem = this.fetchedData.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = this.fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        if (query.indexOf("ser:") == 0) this.displayItem = fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sec:") == 0) this.displayItem = fetchedData.filter(x => x.industry.toLowerCase().indexOf(searchParam) >= 0);
+        else this.displayItem = fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
     //Callback function to sort the list
@@ -68,6 +74,7 @@ export default class TodayStockComponent extends Vue {
                 break;
             case "change":
             case "lastPrice":
+            case "qty":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;
         }
