@@ -61,12 +61,13 @@ namespace screener
 
         public List<DailyStockData> getLTP(int day = 0)
         {
-            return dB.GetLTP(day);
+            var date = dB.GetLastTradeDate(day);
+            return dB.GetLTP(date);
         }
 
         public List<SectorChange> getSectorChange()
         {
-            var result = dB.GetSectorChange(0).OrderBy(x => x.change).ToList();
+            var result = dB.GetSectorChange(0).OrderByDescending(x => x.change).ToList();
             return result;
         }
 
@@ -77,11 +78,7 @@ namespace screener
 
         public List<StockStats> GetStockStats()
         {
-            Stopwatch sp = new Stopwatch();
-            sp.Start();
             var list = dB.GetStockStats();
-            sp.Stop();
-            Console.WriteLine("Time taken: {0}", sp.ElapsedMilliseconds);
             return list;
         }
     }
