@@ -110,11 +110,17 @@ export default class TodayStockComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = fetchedStockPrices.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else if (query.indexOf("sec:") == 0) this.displayItem = fetchedStockPrices.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = fetchedStockPrices.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        if (query.indexOf("ser:") == 0)  this.displayItem = fetchedStockPrices.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
+        else if (query.indexOf("sec:") == 0) {
+            this.displayItem = fetchedStockPrices.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0)
+                                                 .sort((a, b): number => b.priceChange-a.priceChange);
+        }
+        else {
+            this.displayItem = fetchedStockPrices.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        }
     }
 
+    // Callback function on search in sector input box
     onSearchSector(): void {
         let query: string = this.searchQuerySector.toLowerCase();
         this.displayItemSectorChange = fetchedSectorChange.filter(x => (x.sector.toLowerCase().indexOf(query) >= 0));
