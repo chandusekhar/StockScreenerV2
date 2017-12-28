@@ -30,7 +30,12 @@ namespace screener
 
         public List<CompanyInfo> getCompanyList()
         {
-            return dB.getCompanyList();
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
+            var result = dB.getCompanyList();
+            sp.Stop();
+            Console.WriteLine("getCompanyList() took {0} seconds", sp.Elapsed);
+            return result;
         }
 
         public void updateBhavData(DateTime date)
@@ -61,24 +66,42 @@ namespace screener
 
         public List<DailyStockData> getLTP(int day = 0)
         {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
             var date = dB.GetLastTradeDate(day);
-            return dB.GetLTP(date);
+            var result = dB.GetLTP(date);
+            sp.Stop();
+            Console.WriteLine("getLTP() took {0} seconds", sp.Elapsed);
+            return result;
         }
 
         public List<SectorChange> getSectorChange()
         {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
             var result = dB.GetSectorChange(0).OrderByDescending(x => x.change).ToList();
+            sp.Stop();
+            Console.WriteLine("getSectorChange() took {0} seconds", sp.Elapsed);
             return result;
         }
 
         public void getSectorMonthlyStats()
         {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
             dB.GetSectorMonthlyStats();
+            sp.Stop();
+            Console.WriteLine("getSectorMonthlyStats() took {0} seconds", sp.Elapsed);
         }
 
         public List<StockStats> GetStockStats()
         {
+            Stopwatch sp = new Stopwatch();
+
+            sp.Start();
             var list = dB.GetStockStats();
+            sp.Stop();
+            Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
             return list;
         }
     }

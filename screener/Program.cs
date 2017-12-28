@@ -20,10 +20,10 @@ namespace screener
         {
             StockMarket sm = new StockMarket();
             //sm.updateCompaniesList();
-            sm.updateBhavDataToLatest();
+            //sm.updateBhavDataToLatest();
             //sm.getSectorChange();
             //sm.getSectorMonthlyStats();
-            //sm.GetStockStats();
+            sm.GetStockStats();
             //sm.getLTP();
             return;
         }

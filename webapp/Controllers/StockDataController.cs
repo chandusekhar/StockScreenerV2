@@ -13,10 +13,10 @@ namespace webapp.Controllers
     [Route("api/[controller]")]
     public class StockDataController : Controller
     {
-        StockMarket stockMarket;
+        static StockMarket stockMarket = new StockMarket();
         public StockDataController()
         {
-            stockMarket = new StockMarket();
+
         }
 
         [HttpGet("[action]")]

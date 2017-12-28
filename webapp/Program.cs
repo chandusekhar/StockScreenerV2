@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+/*
+    ASPNETCORE_ENVIRONMENT = [Production | Development]
+ */
 namespace webapp
 {
     public class Program

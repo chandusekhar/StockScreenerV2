@@ -5,6 +5,12 @@
         </div>
         <div class="row">
             <div class="col-sm-3">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" id="sizing-addon1">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </span>
+                    <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector" placeholder="Search string">
+                </div>
                 <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItemSectorChange.length">
                     <table class="table table-hover">
                         <thead>

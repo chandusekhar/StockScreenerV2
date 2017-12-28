@@ -44,6 +44,7 @@ let fetchedSectorChange: SectorChange[] = [];
 @Component
 export default class TodayStockComponent extends Vue {
     searchQuery: string = "";
+    searchQuerySector: string = "";
     sortReverse: number = -1;
     searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
     page_header: string = "Today's Sector Report";
@@ -112,6 +113,11 @@ export default class TodayStockComponent extends Vue {
         if (query.indexOf("ser:") == 0) this.displayItem = fetchedStockPrices.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
         else if (query.indexOf("sec:") == 0) this.displayItem = fetchedStockPrices.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
         else this.displayItem = fetchedStockPrices.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+    }
+
+    onSearchSector(): void {
+        let query: string = this.searchQuerySector.toLowerCase();
+        this.displayItemSectorChange = fetchedSectorChange.filter(x => (x.sector.toLowerCase().indexOf(query) >= 0));
     }
 
     //Callback function to sort the list
