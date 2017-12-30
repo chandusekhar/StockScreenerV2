@@ -14,17 +14,20 @@ namespace screener
         public List<DailyStockData> ltpData;
         public List<StockStats> stats;
         public List<SectorChange> sectorChange;
+        public List<CompanyInfo> companyInfo;
 
         public CachedResult()
         {
             ltpData = new List<DailyStockData>();
             stats = new List<StockStats>();
             sectorChange = new List<SectorChange>();
+            companyInfo = new List<CompanyInfo>();
         }
 
         public void Clear() {
             ltpData.Clear();
             stats.Clear();
+            sectorChange.Clear();
         }
     }
 
@@ -46,17 +49,10 @@ namespace screener
                 Console.WriteLine("Could not get list of companies from NSE");
                 return;
             }
-            dB.AddCompaniesToList(list);
-        }
-
-        public List<CompanyInfo> getCompanyList()
-        {
-            Stopwatch sp = new Stopwatch();
-            sp.Start();
-            var result = dB.getCompanyList();
-            sp.Stop();
-            Console.WriteLine("getCompanyList() took {0} seconds", sp.Elapsed);
-            return result;
+            if(0 != dB.AddCompaniesToList(list))
+            {
+                StockMarket.cache.Clear();
+            }
         }
 
         public void updateBhavData(DateTime date)
@@ -70,7 +66,7 @@ namespace screener
             }
             if(count != 0)
             {
-                StockMarket.cache.ltpData.Clear();
+                StockMarket.cache.Clear();
             }
             return;
         }
@@ -94,11 +90,25 @@ namespace screener
             return dB.GetLastTradeDate();
         }
 
+        public List<CompanyInfo> getCompanyList()
+        {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
+            if(StockMarket.cache.companyInfo.Count() == 0)
+            {
+                var result = dB.getCompanyList();
+                StockMarket.cache.companyInfo = result;
+            }
+            sp.Stop();
+            Console.WriteLine("getCompanyList() took {0} seconds", sp.Elapsed);
+            return StockMarket.cache.companyInfo;
+        }
+
         public List<DailyStockData> getLTP(int day = 0)
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
-            if(StockMarket.cache.ltpData.Count == 0) {
+            if(StockMarket.cache.ltpData.Count() == 0) {
                 var date = dB.GetLastTradeDate(day);
                 var result = dB.GetLTP(date);
                 StockMarket.cache.ltpData = result;
@@ -136,7 +146,7 @@ namespace screener
             Stopwatch sp = new Stopwatch();
 
             sp.Start();
-            if(StockMarket.cache.stats.Count == 0)
+            if(StockMarket.cache.stats.Count() == 0)
             {
                 var list = dB.GetStockStats();
                 StockMarket.cache.stats = list;
