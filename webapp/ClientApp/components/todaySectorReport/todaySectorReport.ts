@@ -61,7 +61,7 @@ export default class TodayStockComponent extends Vue {
     searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
     page_header: string = "Today's Sector Report";
     // Update the status in statusMessage
-    statusMessage: string = "Fetching Sector report from server";
+    statusMessage: string = "Fetching Sector report from server. Please wait";
     flag: boolean = false;
 
     // Component specific code
