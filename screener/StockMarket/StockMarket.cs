@@ -8,10 +8,11 @@ using StockDatabase;
 
 namespace screener
 {
+
     public class StockMarket
     {
+        static List<StockStats> stats = new List<StockStats>();
         StockDB dB;
-
         public StockMarket()
         {
             dB = new StockDB();
@@ -99,15 +100,18 @@ namespace screener
             Stopwatch sp = new Stopwatch();
 
             sp.Start();
-            var list = dB.GetStockStats();
+            if(StockMarket.stats.Count == 0)
+            {
+                var list = dB.GetStockStats();
+                StockMarket.stats = list;
+            }
             sp.Stop();
             Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
-            return list;
+            return StockMarket.stats;
         }
         public List<StockHistory> GetStockHistory(string symbol, int days = 100)
         {
             Stopwatch sp = new Stopwatch();
-
             sp.Start();
             var list = dB.GetStockHistory(symbol, days);
             sp.Stop();
