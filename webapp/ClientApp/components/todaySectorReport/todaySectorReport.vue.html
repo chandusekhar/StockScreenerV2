@@ -74,10 +74,11 @@
                                         </i>
                                     </td>
                                 </tr>
-                                <tr v-for="(item, index) in displayItem">
-                                    <td>{{index+1}}</td>
-                                    <td v-for="field in table_display_data">
-                                        <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                <tr v-for="(item, indexRow) in displayItem">
+                                    <td>{{indexRow+1}}</td>
+                                    <td v-for="(field, indexCol) in table_display_data">
+                                        <a v-on:click="linkClick(indexRow, indexCol)" v-if="field.has_link != 0">{{item[field.data_field_name]}}</a>
+                                        <i v-else-if="!field.color_value">{{item[field.data_field_name]}}</i>
                                         <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
                                     </td>
                                 </tr>

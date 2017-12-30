@@ -36,6 +36,7 @@ interface DisplayItems {
     sort_link: boolean;
     show_total: boolean;
     color_value: boolean;
+    has_link: boolean;
 }
 
 let fetchedStockPrices: StockStats[] = [];
@@ -57,17 +58,17 @@ export default class TodayStockComponent extends Vue {
 
     // List of columns and the respective data fields
     table_display_data: DisplayItems[] = [
-        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "AvgChange5d", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Volume/5dVolume", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true },
+        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false, has_link: true },
+        { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false, has_link: false },
+        { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "AvgChange5d", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false, has_link: false },
+        { header_field_name: "Volume/5dVolume", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true, has_link: false },
     ];
 
     table_sector_display_data: DisplayItems[] = [
-        { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: false, color_value: true },
+        { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false, has_link: false },
+        { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: false, color_value: true, has_link: false },
     ];
 
     private updateFetchedData(x: StockStats) {
@@ -162,5 +163,19 @@ export default class TodayStockComponent extends Vue {
         this.searchQuery = "sec:" + key;
         this.onSearch();
         this.page_header = "Today's Sector Report for '" + key + "'";
+    }
+
+    linkClick(indexRow: number, indexCol: number): void {
+        alert((this.displayItem[indexRow]).symbol + " , " + this.table_display_data[indexCol].data_field_name);
+        switch(this.table_display_data[indexCol].data_field_name)
+        {
+            case "symbol":
+                {
+                    break;
+                }
+            default:
+                alert("wrong field in linkClick '" + this.table_display_data[indexCol].data_field_name + "'");
+                break;
+        }
     }
 }
