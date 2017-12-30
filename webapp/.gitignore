@@ -28,7 +28,6 @@ Obj/
 
 # Visual Studio 2015 cache/options directory
 .vs/
-/wwwroot/dist/
 
 /yarn.lock
 
@@ -238,4 +237,3 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
-*.js*

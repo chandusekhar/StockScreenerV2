@@ -9,9 +9,29 @@ using StockDatabase;
 namespace screener
 {
 
+    class CachedResult
+    {
+        public List<DailyStockData> ltpData;
+        public List<StockStats> stats;
+        public List<SectorChange> sectorChange;
+
+        public CachedResult()
+        {
+            ltpData = new List<DailyStockData>();
+            stats = new List<StockStats>();
+            sectorChange = new List<SectorChange>();
+        }
+
+        public void Clear() {
+            ltpData.Clear();
+            stats.Clear();
+        }
+    }
+
     public class StockMarket
     {
-        static List<StockStats> stats = new List<StockStats>();
+        static CachedResult cache = new CachedResult();
+
         StockDB dB;
         public StockMarket()
         {
@@ -41,10 +61,18 @@ namespace screener
 
         public void updateBhavData(DateTime date)
         {
+            int  count = 0;
             NseStockData nse = new NseStockData();
             var stockData = nse.updateBhavData(date);
             if (stockData != null)
-                dB.AddDailyStockData(stockData, date);
+            {
+                count += dB.AddDailyStockData(stockData, date);
+            }
+            if(count != 0)
+            {
+                StockMarket.cache.ltpData.Clear();
+            }
+            return;
         }
 
         public void updateBhavDataToLatest()
@@ -57,6 +85,7 @@ namespace screener
                 Console.WriteLine("Updating data for {0}", date.AddDays(i).Date);
                 updateBhavData(date.AddDays(i));
             }
+
             return;
         }
 
@@ -69,21 +98,28 @@ namespace screener
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
-            var date = dB.GetLastTradeDate(day);
-            var result = dB.GetLTP(date);
+            if(StockMarket.cache.ltpData.Count == 0) {
+                var date = dB.GetLastTradeDate(day);
+                var result = dB.GetLTP(date);
+                StockMarket.cache.ltpData = result;
+            }
             sp.Stop();
             Console.WriteLine("getLTP() took {0} seconds", sp.Elapsed);
-            return result;
+            return StockMarket.cache.ltpData;
         }
 
         public List<SectorChange> getSectorChange()
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
-            var result = dB.GetSectorChange(0).OrderByDescending(x => x.change).ToList();
+            if(StockMarket.cache.sectorChange.Count() == 0)
+            {
+                var result = dB.GetSectorChange(0).OrderByDescending(x => x.change).ToList();
+                StockMarket.cache.sectorChange = result;
+            }
             sp.Stop();
             Console.WriteLine("getSectorChange() took {0} seconds", sp.Elapsed);
-            return result;
+            return StockMarket.cache.sectorChange;
         }
 
         public void getSectorMonthlyStats()
@@ -100,14 +136,14 @@ namespace screener
             Stopwatch sp = new Stopwatch();
 
             sp.Start();
-            if(StockMarket.stats.Count == 0)
+            if(StockMarket.cache.stats.Count == 0)
             {
                 var list = dB.GetStockStats();
-                StockMarket.stats = list;
+                StockMarket.cache.stats = list;
             }
             sp.Stop();
             Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
-            return StockMarket.stats;
+            return StockMarket.cache.stats;
         }
         public List<StockHistory> GetStockHistory(string symbol, int days = 100)
         {
