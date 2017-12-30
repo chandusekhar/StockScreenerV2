@@ -14,40 +14,37 @@
                         <h4 class="modal-title">Stock History</h4>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-hover">
-                            <thead>
-                                <th>Index</th>
-                                <th>Symbol</th>
-                                <th>Number of trades</th>
-                                <th>Quantity</th>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>SBIN</td>
-                                    <td>1000</td>
-                                    <td>110000</td>
-                                </tr>
-                                <tr>
-                                        <td>1</td>
-                                        <td>SBIN</td>
-                                        <td>1000</td>
-                                        <td>110000</td>
-                                </tr>
-                                <tr>
-                                        <td>1</td>
-                                        <td>SBIN</td>
-                                        <td>1000</td>
-                                        <td>110000</td>
-                                </tr>
-                                <tr>
-                                        <td>1</td>
-                                        <td>SBIN</td>
-                                        <td>1000</td>
-                                        <td>110000</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItem.length">
+                            <table class="table table-hover">
+                                <thead>
+                                    <th>#</th>
+                                    <th v-for="item in table_display_data">
+                                        <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link">
+                                            {{item.header_field_name}}
+                                        </a>
+                                        <i v-else>{{item.header_field_name}}</i>
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td v-for="item in table_display_data">
+                                            <i v-if="!item.show_total"></i>
+                                            <i v-else>
+                                                {{ (displayItem.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                            </i>
+                                        </td>
+                                    </tr>
+                                    <tr v-for="(item, index) in displayItem">
+                                        <td>{{index+1}}</td>
+                                        <td v-for="field in table_display_data">
+                                            <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                            <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>

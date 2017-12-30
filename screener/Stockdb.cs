@@ -18,6 +18,16 @@ namespace StockDatabase
         public decimal change { get; set; }
     }
 
+    public class StockHistory {
+        public DateTime date {get; set;}
+        public decimal ltp { get; set; }
+        public decimal change {get; set; }
+        public decimal totalTrades { get; set; }
+        public long deliverableQty { get; set; }
+        public decimal deliveryPercentage { get; set; }
+
+    }
+
     public class StockStats
     {
         public string sector { get; set; }
@@ -244,6 +254,26 @@ namespace StockDatabase
                                                               mapping,
                                                               x.OrderByDescending(y => y.date)))
                                    .ToList();
+            }
+        }
+
+        public List<StockHistory> GetStockHistory(string symbol, int numEntries)
+        {
+            using(var db = new StockDataContext())
+            {
+                var result = db.stockData.Where(x => (x.symbol == symbol) && (x.series == "EQ" || x.series == "BE"))
+                                         .Select(x => new StockHistory {
+                                                change = x.change,
+                                                deliverableQty = x.deliverableQty,
+                                                deliveryPercentage = x.deliveryPercentage,
+                                                totalTrades = x.totalTrades,
+                                                date = x.date.Date,
+                                                ltp = x.close
+                                            })
+                                         .OrderByDescending(x => x.date)
+                                         .Take(numEntries)
+                                         .ToList();
+                return result;
             }
         }
     }

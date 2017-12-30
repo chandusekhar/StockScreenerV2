@@ -80,5 +80,21 @@ namespace webapp.Controllers
                return NotFound("Exception in TodaySectorReport() function");
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult  GetHistory(string symbol)
+        {
+            try
+            {
+                var result = stockMarket.GetStockHistory(symbol);
+                return Ok(result);
+            }
+            catch(Exception)
+            {
+               return NotFound("Exception in TodaySectorReport() function");
+            }
+        }
+
+
     }
 }

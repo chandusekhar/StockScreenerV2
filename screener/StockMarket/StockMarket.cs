@@ -104,5 +104,15 @@ namespace screener
             Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
             return list;
         }
+        public List<StockHistory> GetStockHistory(string symbol, int days = 100)
+        {
+            Stopwatch sp = new Stopwatch();
+
+            sp.Start();
+            var list = dB.GetStockHistory(symbol, days);
+            sp.Stop();
+            Console.WriteLine("GetStockHistory() took {0} seconds", sp.Elapsed);
+            return list;
+        }
     }
 }
