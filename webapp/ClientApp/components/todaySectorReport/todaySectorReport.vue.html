@@ -9,7 +9,7 @@
                     <span class="input-group-addon" id="sizing-addon1">
                         <i class="glyphicon glyphicon-search"></i>
                     </span>
-                    <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector" placeholder="Search string">
+                    <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector" placeholder="Search sector">
                 </div>
                 <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItemSectorChange.length">
                     <table class="table table-hover">
@@ -77,13 +77,63 @@
                                 <tr v-for="(item, indexRow) in displayItem">
                                     <td>{{indexRow+1}}</td>
                                     <td v-for="(field, indexCol) in table_display_data">
-                                        <a v-on:click="linkClick(indexRow, indexCol)" v-if="field.has_link != 0">{{item[field.data_field_name]}}</a>
+                                        <a v-on:click="linkClick(indexRow, indexCol)"
+                                           v-bind:data-toggle="flag ? 'modal': ''" data-target="#myModal" v-if="field.has_link">
+                                            {{item[field.data_field_name]}}
+                                        </a>
                                         <i v-else-if="!field.color_value">{{item[field.data_field_name]}}</i>
                                         <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="myModal" class="modal" role="dialog" >
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" >&times;</button>
+                        <h4 class="modal-title">Stock History for {{stock_symbol}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItem.length">
+                                <table class="table table-hover">
+                                        <thead>
+                                            <th>#</th>
+                                            <th v-for="item in table_history_display_data">
+                                                <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link">
+                                                    {{item.header_field_name}}
+                                                </a>
+                                                <i v-else>{{item.header_field_name}}</i>
+                                            </th>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td></td>
+                                                <td v-for="item in table_history_display_data">
+                                                    <i v-if="!item.show_total"></i>
+                                                    <i v-else>
+                                                        {{ (displayItemHistory.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                                    </i>
+                                                </td>
+                                            </tr>
+                                            <tr v-for="(item, index) in displayItemHistory">
+                                                <td>{{index+1}}</td>
+                                                <td v-for="field in table_history_display_data">
+                                                    <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                                    <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
