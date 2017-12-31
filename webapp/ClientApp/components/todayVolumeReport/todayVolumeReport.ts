@@ -1,5 +1,16 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
+import Moment from 'moment';
+
+class StockHistory
+{
+    date: string;
+    ltp: number;
+    change: number;
+    totalTrades: number;
+    deliverableQty: number;
+    deliveryPercentage: number;
+}
 
 interface StockStats {
     symbol: string;
@@ -24,6 +35,7 @@ interface DisplayItems {
     sort_link: boolean;
     show_total: boolean;
     color_value: boolean;
+    has_link: boolean;
 }
 
 let fetchedData: StockStats[] = [];
@@ -42,15 +54,15 @@ export default class TodayComponent extends Vue {
 
     // List of columns and the respective data fields
     table_display_data: DisplayItems[] = [
-        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true },
-        { header_field_name: "5d Change", data_field_name: "priceChange5d", sort_link: true, show_total: false, color_value: true },
-        { header_field_name: "10d Change", data_field_name: "priceChange10d", sort_link: true, show_total: false, color_value: true },
-        { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false },
-        { header_field_name: "Volume/avg 5d", data_field_name: "volume5dAvg", sort_link: true, show_total: false, color_value: true},
-        { header_field_name: "Volume/avg 10d", data_field_name: "volume10dAvg", sort_link: true, show_total: false, color_value: true}
+        { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false, has_link: true },
+        { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false , has_link: true},
+        { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false, has_link: false },
+        { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "5d Change", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "10d Change", data_field_name: "priceChange10d", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false, has_link: false },
+        { header_field_name: "Volume/avg 5d", data_field_name: "volume5dAvg", sort_link: true, show_total: false, color_value: true, has_link: false},
+        { header_field_name: "Volume/avg 10d", data_field_name: "volume10dAvg", sort_link: true, show_total: false, color_value: true, has_link: false}
     ];
 
     private updateFetchedData(x: StockStats) {
@@ -110,6 +122,53 @@ export default class TodayComponent extends Vue {
             case "priceChange5d":
             case "priceChange10d":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
+                break;
+        }
+    }
+
+    displayItemHistory: StockHistory[] = [];
+
+    table_history_display_data: DisplayItems[] = [
+            { header_field_name: "date", data_field_name: "date", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "ltp", data_field_name: "ltp", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
+            { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "deliverableQty", data_field_name: "deliverableQty", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false }
+    ];
+
+    stock_symbol:string = "";
+    flag: boolean = false;
+    loadHistory(symbol: string): void {
+        this.flag = true;
+        this.stock_symbol = symbol;
+        // Call the HTTP API to fetch company list in json format
+        fetch('api/StockData/GetHistory?symbol='+symbol)
+            .then(response => response.json() as Promise<StockHistory[]>)
+            .then(data => {
+                this.displayItemHistory = data;
+                this.displayItemHistory.forEach(x => x.date =  Moment(String(x.date)).format('DD/MM/YYYY'));
+            })
+            .catch(reason => alert("Failed due to" + reason));
+    }
+
+    linkClick(indexRow: number, indexCol: number): void {
+        switch(this.table_display_data[indexCol].data_field_name)
+        {
+            case "symbol":
+                {
+                    this.loadHistory(this.displayItem[indexRow].symbol);
+                    break;
+                }
+            case "sector":
+                {
+                    this.flag = false;
+                    this.searchQuery = "sec:" + this.displayItem[indexRow].sector;
+                    this.onSearch();
+                    break;
+                }
+            default:
+                alert("wrong field in linkClick '" + this.table_display_data[indexCol].data_field_name + "'");
                 break;
         }
     }
