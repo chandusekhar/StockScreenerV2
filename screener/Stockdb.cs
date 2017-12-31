@@ -113,22 +113,6 @@ namespace StockDatabase
             }
         }
 
-        private void UpdateSectorChangeInformation(DateTime date)
-        {
-            var symIndMapping = getSymbolToIndustryMapping();
-            using (var db = new StockDataContext())
-            {
-                var ltp = db.stockData.Where(x => x.date.CompareTo(date.Date) == 0).ToList();
-
-                // Set the industry for each company
-                ltp.ForEach(x => x.industry = symIndMapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
-                var sectorChange = ltp.GroupBy(x => x.industry)
-                                      .Select(x => new SectorInformation(date, x.Key, x.Average(y => y.change)))
-                                      .OrderBy(x => x.industry);
-                db.sectorInformation.AddRange(sectorChange);
-                Console.WriteLine("Saved : {0}", db.SaveChanges());
-            }
-        }
 
         public int AddDailyStockData(List<DailyStockData> stockData, DateTime date)
         {
@@ -186,6 +170,7 @@ namespace StockDatabase
             {
                 return db.sectorInformation.Where(x => x.date.CompareTo(lastTradedDate.Date) == 0)
                                            .Select(x => new SectorChange(x.industry, x.change))
+                                           .OrderByDescending(x => x.change)
                                            .ToList();
             }
         }

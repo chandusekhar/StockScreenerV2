@@ -34,6 +34,7 @@ interface StockStats {
     volumeChange: number;
     volume: number;
     priceChange5d: number;
+    priceChange10d: number;
 }
 
 interface SectorChange {
@@ -74,6 +75,7 @@ export default class TodayStockComponent extends Vue {
         { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false, has_link: false },
         { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true, has_link: false },
         { header_field_name: "AvgChange5d", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true, has_link: false },
+        { header_field_name: "AvgChange10d", data_field_name: "priceChange10d", sort_link: true, show_total: true, color_value: true, has_link: false },
         { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false, has_link: false },
         { header_field_name: "Volume/5dVolume", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true, has_link: false },
     ];
@@ -86,6 +88,7 @@ export default class TodayStockComponent extends Vue {
     private updateFetchedData(x: StockStats) {
         x.priceChange = x.avgPriceChange[0];
         x.priceChange5d = x.avgPriceChange[1];
+        x.priceChange10d = x.avgPriceChange[2];
         x.volumeChange = 1;
         if(x.avgVolumeChage[1] != 0)
             x.volumeChange = Number(((x.avgVolumeChage[0] - x.avgVolumeChage[1])/x.avgVolumeChage[1]).toFixed(2));
@@ -153,6 +156,7 @@ export default class TodayStockComponent extends Vue {
             case "priceChange":
             case "ltp":
             case "priceChange5d":
+            case "priceChange10d":
             case "volumeChange":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;

@@ -124,7 +124,7 @@ namespace screener
             sp.Start();
             if(StockMarket.cache.sectorChange.Count() == 0)
             {
-                var result = dB.GetSectorChange(0).OrderByDescending(x => x.change).ToList();
+                var result = dB.GetSectorChange(0);
                 StockMarket.cache.sectorChange = result;
             }
             sp.Stop();
