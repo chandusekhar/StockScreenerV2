@@ -42,10 +42,19 @@ namespace StockDatabase
     {
         public string sector { get; set; }
         public decimal change { get; set; }
-        public SectorChange(string sector = "", decimal change = 0)
+        public decimal avg5dChange { get; set; }
+        public SectorChange(string sector = "", decimal change = 0, decimal avg5dChange = 0)
         {
             this.sector = sector;
             this.change = decimal.Round(change, 2);
+            this.avg5dChange = decimal.Round(avg5dChange, 2);
+        }
+
+        public SectorChange(string sector, IEnumerable<SectorInformation> list)
+        {
+            this.sector = sector;
+            this.change = decimal.Round(list.FirstOrDefault().change, 2);
+            this.avg5dChange = decimal.Round(list.Skip(1).Take(5).Average(x => x.change), 2);
         }
     }
     public class MonthlyStats
@@ -166,10 +175,12 @@ namespace StockDatabase
         public List<SectorChange> GetSectorChange(int day = 0)
         {
             var lastTradedDate = GetLastTradeDate(day);
+            var Date5ago = GetLastTradeDate(6);
             using (var db = new StockDataContext())
             {
-                return db.sectorInformation.Where(x => x.date.CompareTo(lastTradedDate.Date) == 0)
-                                           .Select(x => new SectorChange(x.industry, x.change))
+                return db.sectorInformation.Where(x => x.date.CompareTo(Date5ago.Date) >= 0)
+                                           .GroupBy(x => new { x.industry } )
+                                           .Select(x => new SectorChange(x.Key.industry, x.OrderByDescending(y => y.date)))//x.OrderByDescending(y => y.date)))
                                            .OrderByDescending(x => x.change)
                                            .ToList();
             }

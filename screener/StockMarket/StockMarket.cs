@@ -136,7 +136,16 @@ namespace screener
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
-            dB.GetSectorMonthlyStats();
+            var db = dB.GetSectorMonthlyStats();
+            foreach(var item in db)
+            {
+                Console.WriteLine("Sector: {0}", item.industry);
+                foreach(var i in item.stats)
+                {
+                    Console.Write(" {0}/M>{1} ", i.change, i.month);
+                }
+                Console.WriteLine("");
+            }
             sp.Stop();
             Console.WriteLine("getSectorMonthlyStats() took {0} seconds", sp.Elapsed);
         }

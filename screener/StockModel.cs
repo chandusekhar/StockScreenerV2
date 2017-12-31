@@ -30,6 +30,10 @@ namespace StockDatabase
         {
             this.date = date;
             this.industry = industry;
+            if(this.industry == "")
+            {
+                this.industry = ConstValues.defaultIndustry;
+            }
             this.change = decimal.Round(change, 2);
         }
 

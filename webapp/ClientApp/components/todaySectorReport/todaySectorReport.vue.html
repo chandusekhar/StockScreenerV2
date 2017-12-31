@@ -4,11 +4,12 @@
             <h2 align="center"> {{page_header}} </h2>
         </div>
         <div class="row">
-            <div class="col-sm-3">
+            <div class="col-sm-4">
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" id="sizing-addon1">
                         <i class="glyphicon glyphicon-search"></i>
                     </span>
+
                     <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector" placeholder="Search sector">
                 </div>
                 <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="displayItemSectorChange.length">
@@ -43,11 +44,12 @@
                     </table>
                 </div>
             </div>
-            <div class="col-sm-9" >
+            <div class="col-sm-8" >
                 <div>
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon" id="sizing-addon1">
-                            <i class="glyphicon glyphicon-search"></i>
+                            <i class="glyphicon glyphicon-search" v-if="searchQuery.length == 0"></i>
+                            <i class="glyphicon glyphicon-remove" v-else="searchQuery.length != 0" v-on:click="searchQuery = '';onSearch()"></i>
                         </span>
                         <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
                     </div>

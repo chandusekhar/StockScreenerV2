@@ -22,8 +22,8 @@ namespace screener
             //sm.updateCompaniesList();
             //sm.updateBhavDataToLatest();
             //sm.getSectorChange();
-            //sm.getSectorMonthlyStats();
-            sm.GetStockStats();
+            sm.getSectorMonthlyStats();
+            //sm.GetStockStats();
             //sm.getLTP();
             return;
         }

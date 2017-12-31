@@ -40,6 +40,7 @@ interface StockStats {
 interface SectorChange {
     sector: string;
     change: number;
+    avg5dChange: number;
 }
 
 interface DisplayItems {
@@ -83,6 +84,7 @@ export default class TodayStockComponent extends Vue {
     table_sector_display_data: DisplayItems[] = [
         { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false, has_link: false },
         { header_field_name: "Change", data_field_name: "change", sort_link: true, show_total: false, color_value: true, has_link: false },
+        { header_field_name: "Avg 5d", data_field_name: "avg5dChange", sort_link: true, show_total: false, color_value: true, has_link: false },
     ];
 
     private updateFetchedData(x: StockStats) {
@@ -113,9 +115,9 @@ export default class TodayStockComponent extends Vue {
                 .then(data => {
                     fetchedStockPrices = data;
                     fetchedStockPrices.forEach(x => this.updateFetchedData(x));
+                    fetchedStockPrices = fetchedStockPrices.sort((a, b): number => b.priceChange - a.priceChange);
                     this.displayItem = fetchedStockPrices;
                     this.statusMessage = "";
-                    this.onClick("Mining");
                 })
                 .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
         }
@@ -170,6 +172,7 @@ export default class TodayStockComponent extends Vue {
                 this.displayItemSectorChange = this.displayItemSectorChange.sort((left, right): number => left[sortKey].localeCompare(right[sortKey]) * this.sortReverse);
                 break;
             case "change":
+            case "avg5dChange":
                 this.displayItemSectorChange = this.displayItemSectorChange.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;
         }
