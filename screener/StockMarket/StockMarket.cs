@@ -71,6 +71,22 @@ namespace screener
             return;
         }
 
+        public void updateBhavData(string bhavFile, string mtoFile)
+        {
+            int count = 0;
+            var date = DateTime.Parse("01/01/2018");
+            NseStockData nse = new NseStockData();
+            var stockData = nse.updateBhavData(bhavFile, mtoFile);
+            if (stockData != null)
+            {
+                count += dB.AddDailyStockData(stockData, date);
+            }
+            if(count != 0)
+            {
+                StockMarket.cache.Clear();
+            }
+        }
+
         public void updateBhavDataToLatest()
         {
             var date = getLastDate();

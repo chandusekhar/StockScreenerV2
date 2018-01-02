@@ -105,7 +105,8 @@ namespace StockDataParser
 
                 // Download the file
                 WebClient client = new WebClient();
-                client.Headers["User-Agent"] = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+                client.Headers["User-Agent"] = "curl/7.56.1";
+                client.Headers["Host"] = "www.nseindia.com";
                 client.DownloadFile(url, filename);
                 return filename;
             }
@@ -159,7 +160,7 @@ namespace StockDataParser
             }
 
             // unzip the bhav file
-            string bhavFileUnzipped = string.Format("{0}\\cm{1}bhav.csv", tmpFolder, date.ToString("ddMMMyyyy").ToUpper());
+            string bhavFileUnzipped = string.Format("{0}/cm{1}bhav.csv", tmpFolder, date.ToString("ddMMMyyyy").ToUpper());
             if (File.Exists(bhavFileUnzipped)) File.Delete(bhavFileUnzipped);
             ZipFile.ExtractToDirectory(bhavFile, tmpFolder);
 
@@ -198,11 +199,42 @@ namespace StockDataParser
         public List<DailyStockData> updateBhavData(DateTime date)
         {
             var files = downloadBhavAndMTOFile(date);
-            if (files.status == false) return null;
+            if (files.status == false)
+                return null;
             var stockData = parseBhavFile(files.bhavFile).ToList();
             var deliveryData = parseMTOFile(files.mtoFile).ToList();
 
             Console.WriteLine("{0}, {1}", files.bhavFile, files.mtoFile);;
+            foreach (var stock in stockData)
+            {
+                if (stock.series == "BE")
+                {
+                    // In BE series all the trades will be delivered
+                    stock.deliverableQty = stock.totalTradedQty;
+                    stock.deliveryPercentage = 100;
+                }
+                else
+                {
+                    // Fill the deliveryQty and % for every stock
+                    var result = deliveryData.Where(x => x.series == stock.series && x.symbol == stock.symbol && x.qtyTraded == stock.totalTradedQty)
+                                             .ToList();
+                    if (result.Count() > 0)
+                    {
+                        var res = result.First();
+                        stock.deliverableQty = res.deliverableQty;
+                        stock.deliveryPercentage = res.deliveryPercentage;
+                    }
+                }
+            }
+            return stockData;
+        }
+
+        public List<DailyStockData> updateBhavData(string bhavFile, string mtoFile)
+        {
+            var stockData = parseBhavFile(bhavFile).ToList();
+            var deliveryData = parseMTOFile(mtoFile).ToList();
+
+            Console.WriteLine("{0}, {1}", bhavFile, mtoFile);;
             foreach (var stock in stockData)
             {
                 if (stock.series == "BE")

@@ -54,7 +54,13 @@ namespace StockDatabase
         {
             this.sector = sector;
             this.change = decimal.Round(list.FirstOrDefault().change, 2);
-            this.avg5dChange = decimal.Round(list.Skip(1).Take(5).Average(x => x.change), 2);
+            try {
+                this.avg5dChange = decimal.Round(list.Skip(1).Take(5).Average(x => x.change), 2);
+            }
+            catch(Exception)
+            {
+                this.avg5dChange = 0;
+            }
         }
     }
     public class MonthlyStats
