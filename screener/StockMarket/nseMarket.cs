@@ -161,7 +161,7 @@ namespace StockDataParser
 
             // unzip the bhav file
             //string bhavFileUnzipped = string.Format("{0}/cm{1}bhav.csv", tmpFolder, date.ToString("ddMMMyyyy").ToUpper());
-            string bhavFileUnzipped = Path.Combine(tmpFolder, string.Format("cm{1}bhav.csv", date.ToString("ddMMMyyyy").ToUpper()));
+            string bhavFileUnzipped = Path.Combine(tmpFolder, string.Format("cm{0}bhav.csv", date.ToString("ddMMMyyyy").ToUpper()));
             if (File.Exists(bhavFileUnzipped)) File.Delete(bhavFileUnzipped);
             ZipFile.ExtractToDirectory(bhavFile, tmpFolder);
 
