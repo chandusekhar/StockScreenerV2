@@ -26,6 +26,7 @@ namespace StockDatabase
         public long deliverableQty { get; set; }
         public decimal deliveryPercentage { get; set; }
 
+        public decimal volumeChange { get; set; }
     }
 
     public class StockStats
@@ -272,10 +273,17 @@ namespace StockDatabase
                                                 date = x.date.Date,
                                                 ltp = x.close
                                             })
-                                         .OrderByDescending(x => x.date)
-                                         .Take(numEntries)
+                                         .OrderBy(x => x.date)
                                          .ToList();
-                return result;
+                if(result.Count() > 3)
+                {
+                    for(int i = 1; i < result.Count(); i++)
+                    {
+                        if(result[i-1].deliverableQty != 0)
+                            result[i].volumeChange = (decimal)Math.Round(1.0*(result[i].deliverableQty - result[i-1].deliverableQty)/result[i-1].deliverableQty, 2);
+                    }
+                }
+                return result.OrderByDescending(x => x.date).Take(numEntries).ToList();
             }
         }
     }

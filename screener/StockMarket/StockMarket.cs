@@ -180,7 +180,7 @@ namespace screener
             Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
             return StockMarket.cache.stats;
         }
-        public List<StockHistory> GetStockHistory(string symbol, int days = 100)
+        public List<StockHistory> GetStockHistory(string symbol, int days = 200)
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();

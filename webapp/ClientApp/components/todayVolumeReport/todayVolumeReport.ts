@@ -10,6 +10,7 @@ class StockHistory
     totalTrades: number;
     deliverableQty: number;
     deliveryPercentage: number;
+    volumeChange: number;
 }
 
 interface StockStats {
@@ -134,7 +135,8 @@ export default class TodayComponent extends Vue {
             { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
             { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "deliverableQty", data_field_name: "deliverableQty", sort_link: false, color_value: false, show_total: false, has_link:false },
-            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false }
+            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "Volume Change(Times)", data_field_name: "volumeChange", sort_link: false, color_value: true, show_total: false, has_link:false }
     ];
 
     stock_symbol:string = "";
@@ -142,6 +144,7 @@ export default class TodayComponent extends Vue {
     loadHistory(symbol: string): void {
         this.flag = true;
         this.stock_symbol = symbol;
+        this.displayItemHistory = [];
         // Call the HTTP API to fetch company list in json format
         fetch('api/StockData/GetHistory?symbol='+symbol)
             .then(response => response.json() as Promise<StockHistory[]>)

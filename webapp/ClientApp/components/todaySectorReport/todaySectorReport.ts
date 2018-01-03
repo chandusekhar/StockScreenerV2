@@ -10,6 +10,7 @@ class StockHistory
     totalTrades: number;
     deliverableQty: number;
     deliveryPercentage: number;
+    volumeChange: number;
 }
 
 interface StockPrice {
@@ -78,7 +79,7 @@ export default class TodayStockComponent extends Vue {
         { header_field_name: "AvgChange5d", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true, has_link: false },
         { header_field_name: "AvgChange10d", data_field_name: "priceChange10d", sort_link: true, show_total: true, color_value: true, has_link: false },
         { header_field_name: "Volume", data_field_name: "volume", sort_link: true, show_total: false, color_value: false, has_link: false },
-        { header_field_name: "Volume/5dVolume", data_field_name: "volumeChange", sort_link: true, show_total: false, color_value: true, has_link: false },
+        { header_field_name: "Volume/5dVolume", data_field_name: "volumeChange", sort_link: false, show_total: false, color_value: true, has_link: false },
     ];
 
     table_sector_display_data: DisplayItems[] = [
@@ -192,7 +193,8 @@ export default class TodayStockComponent extends Vue {
             { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
             { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "deliverableQty", data_field_name: "deliverableQty", sort_link: false, color_value: false, show_total: false, has_link:false },
-            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false }
+            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "Volume Change(Times)", data_field_name: "volumeChange", sort_link: false, color_value: true, show_total: false, has_link:false }
     ];
 
     stock_symbol:string = "";
