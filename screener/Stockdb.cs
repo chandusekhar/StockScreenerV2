@@ -215,11 +215,18 @@ namespace StockDatabase
             }
         }
 
-        private StockStats getStockStats(string symbol, Dictionary<string, string> mapping, IEnumerable<DailyStockData> list)
+        private StockStats getStockStats(string symbol, Dictionary<string, string> mapping, IEnumerable<DailyStockData> list, DateTime date)
         {
             StockStats stats = new StockStats();
             // Interval Range. All number are days
             var day_interval = new List<int>{5, 10, 20, 30, 60, 120, 240};
+
+            if(list.ElementAt(0).date.Date.CompareTo(date.Date) != 0)
+            {
+                // Ignore this stock as it not trade today
+                stats.ltp = 0;
+                return stats;
+            }
 
             // Allocate array and initialize to 0
             stats.avgPriceChange = Enumerable.Repeat<decimal>(0, day_interval.Count()+1).ToArray();
@@ -247,16 +254,19 @@ namespace StockDatabase
 
         public List<StockStats> GetStockStats()
         {
+            var date = GetLastTradeDate(0);
             var mapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
-                return db.stockData.Where(x => (x.series == "BE" || x.series == "EQ"))
+                var result = db.stockData.Where(x => (x.series == "BE" || x.series == "EQ"))
                                    .GroupBy(x => new {x.symbol})
                                    .OrderBy(x => x.Key.symbol)
                                    .Select(x => getStockStats(x.Key.symbol,
                                                               mapping,
-                                                              x.OrderByDescending(y => y.date)))
+                                                              x.OrderByDescending(y => y.date),
+                                                              date))
                                    .ToList();
+                return result.Where(x => x.ltp != 0).ToList();
             }
         }
 
