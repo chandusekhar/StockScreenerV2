@@ -12,7 +12,7 @@ interface MonthlyStats
 interface SectorStats
 {
     industry: string;
-    MonthlyStats: MonthlyStats[];
+    stats: MonthlyStats[];
 }
 
 
@@ -23,6 +23,14 @@ export default class SectorStatsComponent extends Vue {
     sectors: string[] = [];
     sectorStats: MonthlyStats[] = [];
     statusMessage: string = "Loading Sector Stats";
+    sortReverse: number = -1;
+
+    constructor() {
+        super();
+        Vue.filter('monthToString', function(value:number)  {
+            if (value) { return Moment().months(value-1).format('MMMM'); }
+        });
+    }
 
     mounted(): void {
         fetch('api/StockData/GetSectorStats')
@@ -37,8 +45,21 @@ export default class SectorStatsComponent extends Vue {
 
     onSectorClick(sector: String) {
         let stat = this.stats.filter(x => x.industry == sector);
-        stat[0].MonthlyStats.forEach(x => {
-            alert(x.month);
-        });
+        this.sectorStats = stat[0].stats;
+        this.page_header = "Sector stats for '"  + sector + "'";
+        this.sortReverse = -1;
+        this.sortBy('month');
+    }
+
+    sortBy(key: string) {
+        this.sortReverse *= -1;
+        switch(key)
+        {
+            case 'month':
+                this.sectorStats.sort((left, right):number => {
+                    return (left.month - right.month) * this.sortReverse || right.year - left.year;
+                });
+                break;
+        }
     }
 }
