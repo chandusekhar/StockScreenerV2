@@ -15,6 +15,7 @@ namespace screener
         public List<StockStats> stats;
         public List<SectorChange> sectorChange;
         public List<CompanyInfo> companyInfo;
+        public List<SectorStats> sectorStats;
 
         public CachedResult()
         {
@@ -22,6 +23,7 @@ namespace screener
             stats = new List<StockStats>();
             sectorChange = new List<SectorChange>();
             companyInfo = new List<CompanyInfo>();
+            sectorStats = new List<SectorStats>();
         }
 
         public void Clear() {
@@ -29,6 +31,7 @@ namespace screener
             stats.Clear();
             sectorChange.Clear();
             companyInfo.Clear();
+            sectorStats.Clear();
         }
     }
 
@@ -162,10 +165,14 @@ namespace screener
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
-            var db = dB.GetSectorMonthlyStats();
+            if(StockMarket.cache.sectorStats.Count() == 0)
+            {
+                var db = dB.GetSectorMonthlyStats();
+                StockMarket.cache.sectorStats = db;
+            }
             sp.Stop();
             Logger.WriteLine($"getSectorMonthlyStats() took {sp.Elapsed} seconds");
-            return db;
+            return StockMarket.cache.sectorStats;
         }
 
         public List<StockStats> GetStockStats()
