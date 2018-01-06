@@ -33,7 +33,7 @@ namespace screener
     }
 
 
-    class Logger
+    public class Logger
     {
         public static void WriteLine(string str)
         {
@@ -158,22 +158,14 @@ namespace screener
             return StockMarket.cache.sectorChange;
         }
 
-        public void getSectorMonthlyStats()
+        public List<SectorStats> getSectorMonthlyStats()
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
             var db = dB.GetSectorMonthlyStats();
-            foreach(var item in db)
-            {
-                Console.WriteLine("Sector: {0}", item.industry);
-                foreach(var i in item.stats)
-                {
-                    Console.Write(" {0}/M>{1} ", i.change, i.month);
-                }
-                Console.WriteLine("");
-            }
             sp.Stop();
             Logger.WriteLine($"getSectorMonthlyStats() took {sp.Elapsed} seconds");
+            return db;
         }
 
         public List<StockStats> GetStockStats()

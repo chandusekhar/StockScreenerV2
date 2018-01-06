@@ -20,81 +20,101 @@ namespace webapp.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult  CompanyList()
+        public IActionResult CompanyList()
         {
             try
             {
                 return Ok(stockMarket.getCompanyList());
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-               return NotFound("Exception in CompanyList() function");
+                Logger.WriteLine($"WEBAPI CompanyList() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in CompanyList() function");
             }
         }
 
         [HttpGet("[action]")]
-        public IActionResult  TodayStockReport()
+        public IActionResult TodayStockReport()
         {
             try
             {
-                var result = stockMarket.getLTP().Select(x => new {
-                                                        change = x.change,
-                                                        symbol = x.symbol,
-                                                        series = x.series,
-                                                        lastPrice = x.lastPrice,
-                                                        industry = x.industry,
-                                                        qty = x.totalTradedQty})
+                var result = stockMarket.getLTP().Select(x => new
+                {
+                    change = x.change,
+                    symbol = x.symbol,
+                    series = x.series,
+                    lastPrice = x.lastPrice,
+                    industry = x.industry,
+                    qty = x.totalTradedQty
+                })
                                                 .ToList();
                 return Ok(result);
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-               return NotFound("Exception in TodayStockReport() function");
+                Logger.WriteLine($"WEBAPI TodayStockReport() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in TodayStockReport() function");
             }
         }
 
         [HttpGet("[action]")]
-        public IActionResult  TodayVolumeReport()
+        public IActionResult TodayVolumeReport()
         {
             try
             {
                 var result = stockMarket.GetStockStats().ToList();
                 return Ok(result);
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-               return NotFound("Exception in TodayVolumeReport() function");
+                Logger.WriteLine($"WEBAPI TodayVolumeReport() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in TodayVolumeReport() function");
             }
         }
 
         [HttpGet("[action]")]
-        public IActionResult  TodaySectorChange()
+        public IActionResult TodaySectorChange()
         {
             try
             {
                 var result = stockMarket.getSectorChange();
                 return Ok(result);
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-               return NotFound("Exception in TodaySectorReport() function");
+                Logger.WriteLine($"WEBAPI TodaySectorChange() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in TodaySectorReport() function");
             }
         }
 
         [HttpGet("[action]")]
-        public IActionResult  GetHistory(string symbol)
+        public IActionResult GetHistory(string symbol)
         {
             try
             {
                 var result = stockMarket.GetStockHistory(symbol);
                 return Ok(result);
             }
-            catch(Exception)
+            catch (Exception ex)
             {
-               return NotFound("Exception in TodaySectorReport() function");
+                Logger.WriteLine($"WEBAPI GetHistory() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in GetHistory() function");
             }
         }
 
-
+        [HttpGet("[action]")]
+        public IActionResult GetSectorStats()
+        {
+            try
+            {
+                var result = stockMarket.getSectorMonthlyStats();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"WEBAPI GetSectorStats() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in GetSectorStats() function");
+            }
+        }
     }
 }

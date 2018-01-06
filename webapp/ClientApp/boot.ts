@@ -9,7 +9,8 @@ const routes = [
     { path: '/companyList', component: require('./components/companyList/companyList.vue.html') },
     { path: '/todayStockReport', component: require('./components/todayStockReport/todayStockReport.vue.html') },
     { path: '/todayVolumeReport', component: require('./components/todayVolumeReport/todayVolumeReport.vue.html') },
-    { path: '/todaySectorReport', component: require('./components/todaySectorReport/todaySectorReport.vue.html') }
+    { path: '/todaySectorReport', component: require('./components/todaySectorReport/todaySectorReport.vue.html') },
+    { path: '/sectorStats', component: require('./components/sectorStats/sectorStats.vue.html') }
 ];
 
 new Vue({

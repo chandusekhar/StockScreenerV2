@@ -1,0 +1,53 @@
+<template>
+<div>
+    <div class="row">
+        <h2 align="center"> {{page_header}} </h2>
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" id="sizing-addon1">
+                    <i class="glyphicon glyphicon-search"></i>
+                </span>
+
+                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector"
+                       placeholder="Search Sector">
+            </div>
+            <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="sectors.length">
+            <table class="table table-hover">
+                    <thead>
+                        <th>#</th>
+                        <th> Sector Name </th>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in sectors">
+                            <td>{{index+1}}</td>
+                            <td v-on:click="onSectorClick(item)">{{item}}</td>
+                        </tr>
+                    </tbody>
+            </table>
+            </div>
+            <p v-else>Loading elements </p>
+        </div>
+        <div class="col-sm-9">
+                <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
+                        <table class="table table-hover">
+                                <thead>
+                                    <th>Month</th>
+                                    <th>Change</th>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="item in sectorStats">
+                                        <td>{{item.month}}</td>
+                                        <td>{{item.change}}</td>
+                                    </tr>
+                                </tbody>
+                        </table>
+                </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<style src="../common_css/table.css"></style>
+<script src="./sectorStats.ts"></script>

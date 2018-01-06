@@ -18,10 +18,11 @@ namespace StockDatabase
         public decimal change { get; set; }
     }
 
-    public class StockHistory {
-        public DateTime date {get; set;}
+    public class StockHistory
+    {
+        public DateTime date { get; set; }
         public decimal ltp { get; set; }
-        public decimal change {get; set; }
+        public decimal change { get; set; }
         public decimal totalTrades { get; set; }
         public long deliverableQty { get; set; }
         public decimal deliveryPercentage { get; set; }
@@ -55,10 +56,11 @@ namespace StockDatabase
         {
             this.sector = sector;
             this.change = decimal.Round(list.FirstOrDefault().change, 2);
-            try {
+            try
+            {
                 this.avg5dChange = decimal.Round(list.Skip(1).Take(5).Average(x => x.change), 2);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 this.avg5dChange = 0;
             }
@@ -73,7 +75,7 @@ namespace StockDatabase
         public MonthlyStats(int month = 0, int year = 0, decimal change = 0)
         {
             this.month = month;
-            this.year =  year;
+            this.year = year;
             this.change = decimal.Round(change, 2);
         }
     }
@@ -93,15 +95,16 @@ namespace StockDatabase
 
         public List<CompanyInfo> getCompanyList()
         {
-            using(var db = new StockDataContext())
+            using (var db = new StockDataContext())
             {
-                var result = db.companyInformation.Select(x => new CompanyInfo() {
-                                                    companyName = x.companyName,
-                                                    symbol = x.symbol,
-                                                    series = x.series,
-                                                    industry = x.industry
-                                                })
-                                                .ToList();
+                var result = db.companyInformation.Select(x => new CompanyInfo()
+                {
+                    companyName = x.companyName,
+                    symbol = x.symbol,
+                    series = x.series,
+                    industry = x.industry
+                })
+                .ToList();
                 return result;
 
             }
@@ -186,7 +189,7 @@ namespace StockDatabase
             using (var db = new StockDataContext())
             {
                 return db.sectorInformation.Where(x => x.date.CompareTo(Date5ago.Date) >= 0)
-                                           .GroupBy(x => new { x.industry } )
+                                           .GroupBy(x => new { x.industry })
                                            .Select(x => new SectorChange(x.Key.industry, x.OrderByDescending(y => y.date)))//x.OrderByDescending(y => y.date)))
                                            .OrderByDescending(x => x.change)
                                            .ToList();
@@ -200,14 +203,13 @@ namespace StockDatabase
                 var result = db.sectorInformation
                                .GroupBy(x => new { x.industry })
                                .OrderBy(x => x.Key.industry)
-                               .Select(x => new SectorStats()
-                                    {
-                                        industry = x.Key.industry,
-                                        stats = x.GroupBy(y => new { y.date.Year, y.date.Month })
-                                                 .Select(y => new MonthlyStats(y.Key.Month, y.Key.Year, y.Average(a => a.change)))
-                                                 .OrderByDescending(y => y.year)
-                                                 .ThenByDescending(y => y.month)
-                                                 .ToList()
+                               .Select(x => new SectorStats() {
+                                    industry = x.Key.industry,
+                                    stats = x.GroupBy(y => new { y.date.Year, y.date.Month })
+                                                    .Select(y => new MonthlyStats(y.Key.Month, y.Key.Year, y.Average(a => a.change)))
+                                                    .OrderByDescending(y => y.year)
+                                                    .ThenByDescending(y => y.month)
+                                                    .ToList()
                                     }
                                )
                                .ToList();
@@ -219,18 +221,18 @@ namespace StockDatabase
         {
             StockStats stats = new StockStats();
             // Interval Range. All number are days
-            var day_interval = new List<int>{5, 10, 20, 30, 60, 120, 240};
+            var day_interval = new List<int> { 5, 10, 20, 30, 60, 120, 240 };
 
-            if(list.ElementAt(0).date.Date.CompareTo(date.Date) != 0)
+            if (list.ElementAt(0).date.Date.CompareTo(date.Date) != 0)
             {
-                // Ignore this stock as it not trade today
+                // Ignore this stock as there was no trade today
                 stats.ltp = 0;
                 return stats;
             }
 
             // Allocate array and initialize to 0
-            stats.avgPriceChange = Enumerable.Repeat<decimal>(0, day_interval.Count()+1).ToArray();
-            stats.avgVolumeChage = Enumerable.Repeat<decimal>(0, day_interval.Count()+1).ToArray();
+            stats.avgPriceChange = Enumerable.Repeat<decimal>(0, day_interval.Count() + 1).ToArray();
+            stats.avgVolumeChage = Enumerable.Repeat<decimal>(0, day_interval.Count() + 1).ToArray();
 
             // Set the symbol and series for this stock
             (stats.symbol, stats.series, stats.sector) =
@@ -240,13 +242,13 @@ namespace StockDatabase
             (stats.avgPriceChange[0], stats.avgVolumeChage[0], stats.ltp) = (list.ElementAt(0).change, list.ElementAt(0).deliverableQty, list.ElementAt(0).lastPrice);
 
             // Compute the avg price and deliverable volume
-            for(int i = 0; i < day_interval.Count; i++)
+            for (int i = 0; i < day_interval.Count; i++)
             {
                 // Check if the data exists for this interval
-                if(list.Count() > day_interval[i])
+                if (list.Count() > day_interval[i])
                 {
-                    stats.avgPriceChange[i+1] = decimal.Round(100 * (list.ElementAt(1).lastPrice - list.ElementAt(day_interval[i]).open) / list.ElementAt(day_interval[i]).open, 2);
-                    stats.avgVolumeChage[i+1] = decimal.Round((decimal)list.Skip(1).Take(day_interval[i]).Average(x => x.deliverableQty), 2);
+                    stats.avgPriceChange[i + 1] = decimal.Round(100 * (list.ElementAt(1).lastPrice - list.ElementAt(day_interval[i]).open) / list.ElementAt(day_interval[i]).open, 2);
+                    stats.avgVolumeChage[i + 1] = decimal.Round((decimal)list.Skip(1).Take(day_interval[i]).Average(x => x.deliverableQty), 2);
                 }
             }
             return stats;
@@ -256,41 +258,42 @@ namespace StockDatabase
         {
             var date = GetLastTradeDate(0);
             var mapping = getSymbolToIndustryMapping();
-            using(var db = new StockDataContext())
+            using (var db = new StockDataContext())
             {
                 var result = db.stockData.Where(x => (x.series == "BE" || x.series == "EQ"))
-                                   .GroupBy(x => new {x.symbol})
-                                   .OrderBy(x => x.Key.symbol)
-                                   .Select(x => getStockStats(x.Key.symbol,
-                                                              mapping,
-                                                              x.OrderByDescending(y => y.date),
-                                                              date))
-                                   .ToList();
+                                         .GroupBy(x => new { x.symbol })
+                                         .OrderBy(x => x.Key.symbol)
+                                         .Select(x => getStockStats(x.Key.symbol,
+                                                                    mapping,
+                                                                    x.OrderByDescending(y => y.date).Take(250),
+                                                                    date))
+                                         .ToList();
                 return result.Where(x => x.ltp != 0).ToList();
             }
         }
 
         public List<StockHistory> GetStockHistory(string symbol, int numEntries)
         {
-            using(var db = new StockDataContext())
+            using (var db = new StockDataContext())
             {
                 var result = db.stockData.Where(x => (x.symbol == symbol) && (x.series == "EQ" || x.series == "BE"))
-                                         .Select(x => new StockHistory {
-                                                change = x.change,
-                                                deliverableQty = x.deliverableQty,
-                                                deliveryPercentage = x.deliveryPercentage,
-                                                totalTrades = x.totalTrades,
-                                                date = x.date.Date,
-                                                ltp = x.close
-                                            })
+                                         .Select(x => new StockHistory
+                                         {
+                                             change = x.change,
+                                             deliverableQty = x.deliverableQty,
+                                             deliveryPercentage = x.deliveryPercentage,
+                                             totalTrades = x.totalTrades,
+                                             date = x.date.Date,
+                                             ltp = x.close
+                                         })
                                          .OrderBy(x => x.date)
                                          .ToList();
-                if(result.Count() > 3)
+                if (result.Count() > 3)
                 {
-                    for(int i = 1; i < result.Count(); i++)
+                    for (int i = 1; i < result.Count(); i++)
                     {
-                        if(result[i-1].deliverableQty != 0)
-                            result[i].volumeChange = (decimal)Math.Round(1.0*(result[i].deliverableQty - result[i-1].deliverableQty)/result[i-1].deliverableQty, 2);
+                        if (result[i - 1].deliverableQty != 0)
+                            result[i].volumeChange = (decimal)Math.Round(1.0 * (result[i].deliverableQty - result[i - 1].deliverableQty) / result[i - 1].deliverableQty, 2);
                     }
                 }
                 return result.OrderByDescending(x => x.date).Take(numEntries).ToList();
