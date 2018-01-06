@@ -116,5 +116,20 @@ namespace webapp.Controllers
                 return NotFound("Exception in GetSectorStats() function");
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult UpdateBhav()
+        {
+            try
+            {
+                stockMarket.updateBhavDataToLatest();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"WEBAPI UpdateBhav() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in UpdateBhav() function");
+            }
+        }
     }
 }
