@@ -28,6 +28,16 @@ namespace screener
             ltpData.Clear();
             stats.Clear();
             sectorChange.Clear();
+            companyInfo.Clear();
+        }
+    }
+
+
+    class Logger
+    {
+        public static void WriteLine(string str)
+        {
+            Console.WriteLine("{0}: {1}", DateTime.Now, str);
         }
     }
 
@@ -94,7 +104,7 @@ namespace screener
             TimeSpan count = DateTime.Now - date;
             for(int i = 1; i <= count.Days; i++)
             {
-                Console.WriteLine("Updating data for {0}", date.AddDays(i).Date);
+                Logger.WriteLine($"UpdateBhavDataToLatest() updating date for {date.AddDays(i).Date}");
                 updateBhavData(date.AddDays(i));
             }
 
@@ -116,7 +126,7 @@ namespace screener
                 StockMarket.cache.companyInfo = result;
             }
             sp.Stop();
-            Console.WriteLine("getCompanyList() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"getCompanyList() took {sp.Elapsed} seconds");
             return StockMarket.cache.companyInfo;
         }
 
@@ -130,7 +140,7 @@ namespace screener
                 StockMarket.cache.ltpData = result;
             }
             sp.Stop();
-            Console.WriteLine("getLTP() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"getLTP() took {sp.Elapsed} seconds");
             return StockMarket.cache.ltpData;
         }
 
@@ -144,7 +154,7 @@ namespace screener
                 StockMarket.cache.sectorChange = result;
             }
             sp.Stop();
-            Console.WriteLine("getSectorChange() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"getSectorChange() took {sp.Elapsed} seconds");
             return StockMarket.cache.sectorChange;
         }
 
@@ -163,7 +173,7 @@ namespace screener
                 Console.WriteLine("");
             }
             sp.Stop();
-            Console.WriteLine("getSectorMonthlyStats() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"getSectorMonthlyStats() took {sp.Elapsed} seconds");
         }
 
         public List<StockStats> GetStockStats()
@@ -177,7 +187,7 @@ namespace screener
                 StockMarket.cache.stats = list;
             }
             sp.Stop();
-            Console.WriteLine("GetStockStats() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"GetStockStats() took {sp.Elapsed} seconds");
             return StockMarket.cache.stats;
         }
         public List<StockHistory> GetStockHistory(string symbol, int days = 200)
@@ -186,7 +196,7 @@ namespace screener
             sp.Start();
             var list = dB.GetStockHistory(symbol, days);
             sp.Stop();
-            Console.WriteLine("GetStockHistory() took {0} seconds", sp.Elapsed);
+            Logger.WriteLine($"GetStockStats({symbol}) took {sp.Elapsed} seconds");
             return list;
         }
     }
