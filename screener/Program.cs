@@ -26,6 +26,7 @@ namespace screener
             //sm.getSectorMonthlyStats();
             //sm.GetStockStats();
             //sm.getLTP();
+            //sm.getStockMonthlyStats();
             return;
         }
     }

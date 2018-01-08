@@ -7,6 +7,18 @@ using StockDataParser;
 
 namespace StockDatabase
 {
+    public class StockMonthlyStats
+    {
+        public int year { get; set;}
+        public string symbol { get; set; }
+        public decimal[] change { get; set; }
+
+        public StockMonthlyStats(string symbol, int year) {
+            change = new decimal[12];
+            this.year = year;
+            this.symbol = symbol;
+        }
+    }
 
     public class CompanyInfo
     {
@@ -190,7 +202,7 @@ namespace StockDatabase
             {
                 return db.sectorInformation.Where(x => x.date.CompareTo(Date5ago.Date) >= 0)
                                            .GroupBy(x => new { x.industry })
-                                           .Select(x => new SectorChange(x.Key.industry, x.OrderByDescending(y => y.date)))//x.OrderByDescending(y => y.date)))
+                                           .Select(x => new SectorChange(x.Key.industry, x.OrderByDescending(y => y.date)))
                                            .OrderByDescending(x => x.change)
                                            .ToList();
             }
@@ -217,7 +229,37 @@ namespace StockDatabase
             }
         }
 
-        private StockStats getStockStats(string symbol, Dictionary<string, string> mapping, IEnumerable<DailyStockData> list, DateTime date)
+        StockMonthlyStats GetStockMonthlyStats(string symbol, IQueryable<DailyStockData> list, int year)
+        {
+            StockMonthlyStats stats = new StockMonthlyStats(symbol, year);
+            var result = list.Where(x => x.date.Year == year)
+                             .GroupBy(x => new { Month = x.date.Month, Year = x.date.Year })
+                             .OrderBy(x => x.Key.Month)
+                             .ToList();
+/*
+            foreach(var item in result)
+            {
+                stats.change[item.Key.Month - 1] = decimal.Round((item.First().open - item.Last().lastPrice)/item.Last().lastPrice, 2);
+            }
+*/
+            result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
+            return stats;
+        }
+
+        public List<StockMonthlyStats> GetStockMonthlyStats(int year)
+        {
+            using(var db = new StockDataContext())
+            {
+                var result = db.stockData.Where(x => (x.series == "EQ" || x.series == "BE") && (x.date.Year == year))
+                                         .GroupBy(x => new { x.symbol })
+                                         .Select(x => GetStockMonthlyStats(x.Key.symbol, x.AsQueryable(), year))
+                                         .ToList();
+
+                return result;
+            }
+        }
+
+        private StockStats getStockStats(string symbol, Dictionary<string, string> mapping, List<DailyStockData> list, DateTime date)
         {
             StockStats stats = new StockStats();
             // Interval Range. All number are days
@@ -257,15 +299,16 @@ namespace StockDatabase
         public List<StockStats> GetStockStats()
         {
             var date = GetLastTradeDate(0);
+            var date300 = GetLastTradeDate(300);
             var mapping = getSymbolToIndustryMapping();
             using (var db = new StockDataContext())
             {
-                var result = db.stockData.Where(x => (x.series == "BE" || x.series == "EQ"))
+                var result = db.stockData.Where(x => ((x.series == "BE" || x.series == "EQ") && (x.date.CompareTo(date300) > 0)))
                                          .GroupBy(x => new { x.symbol })
                                          .OrderBy(x => x.Key.symbol)
                                          .Select(x => getStockStats(x.Key.symbol,
                                                                     mapping,
-                                                                    x.OrderByDescending(y => y.date).Take(250),
+                                                                    x.OrderByDescending(y => y.date).Take(300).ToList(),
                                                                     date))
                                          .ToList();
                 return result.Where(x => x.ltp != 0).ToList();
