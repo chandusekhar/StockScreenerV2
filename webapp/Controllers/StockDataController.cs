@@ -131,5 +131,20 @@ namespace webapp.Controllers
                 return NotFound("Exception in UpdateBhav() function");
             }
         }
+
+        [HttpGet("[action]")]
+        public IActionResult GetStockMonthlyStats(int year)
+        {
+            try
+            {
+                var result = stockMarket.getStockMonthlyStats(year);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"WEBAPI GetStockMonthlyStats() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in GetStockMonthlyStats() function");
+            }
+        }
     }
 }

@@ -178,13 +178,13 @@ namespace screener
             return StockMarket.cache.sectorStats;
         }
 
-        public List<StockMonthlyStats> getStockMonthlyStats()
+        public List<StockMonthlyStats> getStockMonthlyStats(int year = 2017)
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
             if(StockMarket.cache.stockMonthlyStats.Count() == 0)
             {
-                var result = dB.GetStockMonthlyStats(2017);
+                var result = dB.GetStockMonthlyStats(year);
                 StockMarket.cache.stockMonthlyStats = result;
             }
             sp.Stop();
