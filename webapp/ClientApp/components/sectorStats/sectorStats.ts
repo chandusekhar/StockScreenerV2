@@ -40,7 +40,7 @@ export default class SectorStatsComponent extends Vue {
                 data.forEach(x => { if(x.industry != "") this.sectors.push(x.industry)});
                 this.statusMessage = "";
         })
-        .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");
+        .catch(reason => this.statusMessage = "API 'StockData/GetSectorStats' failed with error \"" + reason + "\"");
     }
 
     onSectorClick(sector: String) {

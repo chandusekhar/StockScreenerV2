@@ -236,13 +236,13 @@ namespace StockDatabase
                              .GroupBy(x => new { Month = x.date.Month, Year = x.date.Year })
                              .OrderBy(x => x.Key.Month)
                              .ToList();
-/*
+
             foreach(var item in result)
             {
-                stats.change[item.Key.Month - 1] = decimal.Round((item.First().open - item.Last().lastPrice)/item.Last().lastPrice, 2);
+                stats.change[item.Key.Month - 1] = decimal.Round(100*(item.Last().open - item.First().lastPrice)/item.Last().lastPrice, 2);
             }
-*/
-            result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
+
+           // result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
             return stats;
         }
 

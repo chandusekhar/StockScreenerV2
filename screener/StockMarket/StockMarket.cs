@@ -181,6 +181,7 @@ namespace screener
         public List<StockMonthlyStats> getStockMonthlyStats(int year = 2017)
         {
             Stopwatch sp = new Stopwatch();
+
             sp.Start();
             if(StockMarket.cache.stockMonthlyStats.Count() == 0)
             {
