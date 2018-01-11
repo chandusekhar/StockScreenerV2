@@ -180,17 +180,20 @@ namespace screener
 
         public List<StockMonthlyStats> getStockMonthlyStats(int year = 2017)
         {
+            List<StockMonthlyStats> result = new List<StockMonthlyStats>();
             Stopwatch sp = new Stopwatch();
 
             sp.Start();
-            if(StockMarket.cache.stockMonthlyStats.Count() == 0)
+            result = StockMarket.cache.stockMonthlyStats.Where(x => x.year == year).ToList();
+            if(result.Count() == 0)
             {
-                var result = dB.GetStockMonthlyStats(year);
-                StockMarket.cache.stockMonthlyStats = result;
+                // query the results from the sqlite DB
+                result = dB.GetStockMonthlyStats(year);
+                StockMarket.cache.stockMonthlyStats.AddRange(result);
             }
             sp.Stop();
             Logger.WriteLine($"getStockMonthlyStats() took {sp.Elapsed} seconds");
-            return  StockMarket.cache.stockMonthlyStats;
+            return result;
         }
 
         public List<StockStats> GetStockStats()

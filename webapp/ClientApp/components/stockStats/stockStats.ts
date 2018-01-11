@@ -19,6 +19,7 @@ export default class StockStatsComponent extends Vue {
     statusMessage: string = "Loading data from server";
     searchQuery: string = "";
     sortReverse: number = -1;
+    year: number = 2017;
 
     constructor()
     {
@@ -27,11 +28,16 @@ export default class StockStatsComponent extends Vue {
             if (value) { return Moment().months(value-1).format('MMMM'); }
         });
     }
-    mounted(): void {
-        fetch('api/StockData/GetStockMonthlyStats?year=2017')
+
+    loadStats(year:number) : void {
+        fetch('api/StockData/GetStockMonthlyStats?year='+year.toString())
         .then(response => response.json() as Promise<StockMonthlyStats[]>)
-        .then(data => { cachedStats = this.stats = data; this.statusMessage = ""; })
+        .then(data => { cachedStats = this.stats = data; this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
         .catch(reason => this.statusMessage = "API 'StockData/GetStockMonthlyStats' failed with error \"" + reason + "\"");
+    }
+
+    mounted(): void {
+        this.loadStats(this.year);
     }
 
     sortBy(key: string, index: number) {
@@ -62,7 +68,6 @@ export default class StockStatsComponent extends Vue {
         return true;
     }
 
-
     onSearch(): void {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
@@ -72,5 +77,17 @@ export default class StockStatsComponent extends Vue {
         else {
             this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0);
         }
+    }
+
+    lastYear(): void {
+        if(this.year == 2016) return;
+        this.year--;
+        this.loadStats(this.year);
+    }
+
+    nextYear(): void {
+        if(this.year == 2018) return;
+        this.year++;
+        this.loadStats(this.year);
     }
 }

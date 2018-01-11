@@ -1,15 +1,21 @@
 <template>
 <div>
-
     <div class="row">
-            <h2 align="center"> Monthly Stats </h2>
+            <div class="input-group input-group-lg">
+            <span class="input-group-addon" id="sizing-addon1">
+                    <i class="glyphicon glyphicon-backward" v-on:click="lastYear()"></i>
+            </span>
+            <h2 align="center"> Monthly Stats for Year {{year}}</h2>
+            <span class="input-group-addon" id="sizing-addon1">
+                    <i class="glyphicon glyphicon-forward"  v-on:click="nextYear()"></i>
+            </span>
         </div>
+    </div>
     <div class="row">
         <div class="input-group input-group-lg">
             <span class="input-group-addon" id="sizing-addon1">
                 <i class="glyphicon glyphicon-search"></i>
             </span>
-
             <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Sector">
         </div>
         <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh"  v-if="stats.length">
