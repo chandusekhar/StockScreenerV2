@@ -164,6 +164,42 @@ namespace StockDatabase
         public DateTime date { get; set; }
     }
 
+    public class StockMonthlyStats
+    {
+        [Required]
+        public int year { get; set;}
+        [Required]
+        public string symbol { get; set; }
+        [NotMapped]
+        public decimal[] change
+        {
+            get
+            {
+                return Array.ConvertAll(InternalData.Split(';'), Decimal.Parse);
+            }
+            set
+            {
+                var _data = Array.ConvertAll<decimal, string>(value, Convert.ToString);
+                InternalData = String.Join(";", _data);
+            }
+        }
+
+        [Required]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string InternalData { get; set; }
+
+        public StockMonthlyStats()
+        {
+            change = new decimal[12];
+        }
+
+        public StockMonthlyStats(string symbol, int year) {
+            change = new decimal[12];
+            this.year = year;
+            this.symbol = symbol;
+        }
+    }
+
     public class StockDataContext : DbContext
     {
         public DbSet<CompanyInformation> companyInformation { get; set; }
@@ -172,6 +208,7 @@ namespace StockDatabase
         public DbSet<DailyStockData> stockData { get; set; }
         public DbSet<CircuitBreaker> circuitBreaker { get; set; }
         public DbSet<SectorInformation> sectorInformation { get; set;}
+        public DbSet<StockMonthlyStats> monthlyStockStats {get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite("Data Source=data.db");
@@ -186,6 +223,7 @@ namespace StockDatabase
             modelBuilder.Entity<DailyStockData>().HasKey(x => new { x.isinNumber, x.date, x.series });
             modelBuilder.Entity<CircuitBreaker>().HasKey(x => new { x.nseSymbol, x.date, x.series });
             modelBuilder.Entity<SectorInformation>().HasKey( x=> new {x.date, x.industry});
+            modelBuilder.Entity<StockMonthlyStats>().HasKey(x => new {x.symbol, x.year});
 
             // Set the index for faster query operations
             modelBuilder.Entity<WatchList>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });
@@ -197,6 +235,8 @@ namespace StockDatabase
             modelBuilder.Entity<SectorInformation>().HasIndex(x => x.date);
             modelBuilder.Entity<SectorInformation>().HasIndex(x => x.industry);
             modelBuilder.Entity<CircuitBreaker>().HasIndex(x => x.date);
+            modelBuilder.Entity<StockMonthlyStats>().HasIndex(x => x.symbol);
+            modelBuilder.Entity<StockMonthlyStats>().HasIndex(x => x.year);
         }
     }
 }

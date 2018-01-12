@@ -7,18 +7,6 @@ using StockDataParser;
 
 namespace StockDatabase
 {
-    public class StockMonthlyStats
-    {
-        public int year { get; set;}
-        public string symbol { get; set; }
-        public decimal[] change { get; set; }
-
-        public StockMonthlyStats(string symbol, int year) {
-            change = new decimal[12];
-            this.year = year;
-            this.symbol = symbol;
-        }
-    }
 
     public class CompanyInfo
     {
