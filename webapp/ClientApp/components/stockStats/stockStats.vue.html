@@ -1,47 +1,49 @@
 <template>
 <div>
-    <div class="row">
-            <div class="input-group input-group-lg">
-            <span class="input-group-addon" id="sizing-addon1">
-                    <i class="glyphicon glyphicon-backward" v-on:click="lastYear()"></i>
-            </span>
-            <h2 align="center"> Monthly Stats for Year {{year}}</h2>
-            <span class="input-group-addon" id="sizing-addon1">
-                    <i class="glyphicon glyphicon-forward"  v-on:click="nextYear()"></i>
-            </span>
-        </div>
-    </div>
-    <div class="row">
-        <div class="input-group input-group-lg">
-            <span class="input-group-addon" id="sizing-addon1">
-                <i class="glyphicon glyphicon-search"></i>
-            </span>
-            <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Sector">
-        </div>
-        <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh"  v-if="stats.length">
-            <table class="table table-hover">
-                <thead>
-                    <th>#</th>
-                    <th><a v-on:click="sortBy('symbol', 0)"> symbol </a></th>
 
-                    <th v-for="(item, index) in [1,2,3,4,5,6,7,8,9,10,11,12]">
-                        <a v-on:click="sortBy('change', index)"> {{ item | monthToString}} </a>
-                    </th>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in stats">
-                        <td>{{index+1}}</td>
-                        <td>{{item.symbol}}</td>
-                        <td v-for="change in item.change">
-                            <font v-bind:color="change > 0 ? 'Green' : 'Red'">{{change}}</font>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="row">
+        <div class="col-sm-4"></div>
+        <div class="col-sm-4">
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" >
+                        <i class="glyphicon glyphicon-backward" v-on:click="lastYear()"></i>
+                </span>
+                <h2 align="center"> Monthly Stats for Year {{year}}</h2>
+                <span class="input-group-addon">
+                        <i class="glyphicon glyphicon-forward"  v-on:click="nextYear()"></i>
+                </span>
+            </div>
         </div>
-        <p v-else>{{statusMessage}}</p>
-        <div class="col-sm-1"></div>
     </div>
+
+    <div class="input-group input-group-lg">
+        <span class="input-group-addon" id="sizing-addon1">
+            <i class="glyphicon glyphicon-search"></i>
+        </span>
+        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Sector">
+    </div>
+    <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh"  v-if="stats.length">
+        <table class="table table-hover">
+            <thead>
+                <th>#</th>
+                <th><a v-on:click="sortBy('symbol', 0)"> symbol </a></th>
+
+                <th v-for="(item, index) in [1,2,3,4,5,6,7,8,9,10,11,12]">
+                    <a v-on:click="sortBy('change', index)"> {{ item | monthToString}} </a>
+                </th>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in stats">
+                    <td>{{index+1}}</td>
+                    <td>{{item.symbol}}</td>
+                    <td v-for="change in item.change">
+                        <font v-bind:color="change > 0 ? 'Green' : 'Red'">{{change}}</font>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <p v-else>{{statusMessage}}</p>
 </div>
 </template>
 
