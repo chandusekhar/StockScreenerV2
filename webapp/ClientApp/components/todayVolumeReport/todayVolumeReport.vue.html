@@ -33,7 +33,7 @@
                     <td>{{indexRow+1}}</td>
                     <td v-for="(field, indexCol) in table_display_data">
                         <a v-on:click="linkClick(indexRow, indexCol)"
-                            v-bind:data-toggle="flag ? 'modal': ''" data-target="#myModal" v-if="field.has_link">
+                            v-bind:data-toggle="flag ? 'modal': ''" data-target="#myModal" v-if="field.has_link" style="text-align:center">
                             {{item[field.data_field_name]}}
                         </a>
                         <i v-else-if="!field.color_value">{{item[field.data_field_name]}}</i>

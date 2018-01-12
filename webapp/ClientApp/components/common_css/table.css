@@ -1,22 +1,28 @@
 table {
     margin-top: 10px;
+    text-align: right;
 }
 table th {
     vertical-align: center;
     background-color: #4CAF50;
     color: white;
     padding:  10px;
-    text-align: left;
 }
-
 table th a {
-    color: white
+    cursor: pointer;
+    color: blue;
 }
 table tr {
-    text-align: left;
     vertical-align: center;
     padding:  10px;
 }
 tr:nth-child(odd) {
     background-color: #f2f2f2;
+}
+table, th, td {
+    border: 1px solid black;
+}
+a {
+    cursor: pointer;
+    color: teal;
 }
