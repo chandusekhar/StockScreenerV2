@@ -32,7 +32,7 @@ export default class StockStatsComponent extends Vue {
     loadStats(year:number) : void {
         fetch('api/StockData/GetStockMonthlyStats?year='+year.toString())
         .then(response => response.json() as Promise<StockMonthlyStats[]>)
-        .then(data => { cachedStats = this.stats = data; this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
+        .then(data => { this.year = year; cachedStats = this.stats = data; this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
         .catch(reason => this.statusMessage = "API 'StockData/GetStockMonthlyStats' failed with error \"" + reason + "\"");
     }
 
@@ -80,14 +80,15 @@ export default class StockStatsComponent extends Vue {
     }
 
     lastYear(): void {
-        if(this.year == 2016) return;
-        this.year--;
-        this.loadStats(this.year);
+        if(this.year <= 2016) {
+
+            return;
+        }
+        this.loadStats(this.year-1);
     }
 
     nextYear(): void {
-        if(this.year == 2018) return;
-        this.year++;
-        this.loadStats(this.year);
+        if(this.year > 2018) return;
+        this.loadStats(this.year+1);
     }
 }

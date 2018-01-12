@@ -225,11 +225,12 @@ namespace StockDatabase
                              .OrderBy(x => x.Key.Month)
                              .ToList();
 
+            decimal[] change = new decimal[12];
             foreach(var item in result)
             {
-                stats.change[item.Key.Month - 1] = decimal.Round(100*(item.Last().open - item.First().lastPrice)/item.Last().lastPrice, 2);
+                change[item.Key.Month - 1] = decimal.Round(100*(item.Last().open - item.First().lastPrice)/item.Last().lastPrice, 2);
             }
-
+            stats.change = change;
            // result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
             return stats;
         }
@@ -243,6 +244,15 @@ namespace StockDatabase
                                          .Select(x => GetStockMonthlyStats(x.Key.symbol, x.AsQueryable(), year))
                                          .ToList();
 
+                return result;
+            }
+        }
+
+        public List<StockMonthlyStats> GetStockMonthlyStatsFromTable(int year)
+        {
+            using(var db = new StockDataContext())
+            {
+                var result = db.monthlyStockStats.Where(x => x.year == year).ToList();
                 return result;
             }
         }

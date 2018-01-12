@@ -16,7 +16,7 @@ namespace screener
         public List<SectorChange> sectorChange;
         public List<CompanyInfo> companyInfo;
         public List<SectorStats> sectorStats;
-        public List<StockMonthlyStats> stockMonthlyStats;
+        public List<StockMonthlyStats> monthlyStats;
 
         public CachedResult()
         {
@@ -25,7 +25,7 @@ namespace screener
             sectorChange = new List<SectorChange>();
             companyInfo = new List<CompanyInfo>();
             sectorStats = new List<SectorStats>();
-            stockMonthlyStats = new List<StockMonthlyStats>();
+            monthlyStats = new List<StockMonthlyStats>();
         }
 
         public void Clear() {
@@ -34,7 +34,7 @@ namespace screener
             sectorChange.Clear();
             companyInfo.Clear();
             sectorStats.Clear();
-            stockMonthlyStats.Clear();
+            monthlyStats.Clear();
         }
     }
 
@@ -146,7 +146,7 @@ namespace screener
                 StockMarket.cache.ltpData = result;
             }
             sp.Stop();
-            Logger.WriteLine($"getLTP() took {sp.Elapsed} seconds");
+            Logger.WriteLine($"getLTP({day}) took {sp.Elapsed} seconds");
             return StockMarket.cache.ltpData;
         }
 
@@ -184,15 +184,20 @@ namespace screener
             Stopwatch sp = new Stopwatch();
 
             sp.Start();
-            result = StockMarket.cache.stockMonthlyStats.Where(x => x.year == year).ToList();
-            if(result.Count() == 0)
+            if(DateTime.Now.Year == year)
             {
-                // query the results from the sqlite DB
-                result = dB.GetStockMonthlyStats(year);
-                StockMarket.cache.stockMonthlyStats.AddRange(result);
+                if(StockMarket.cache.monthlyStats.Count() == 0)
+                {
+                    result = dB.GetStockMonthlyStats(year);
+                    StockMarket.cache.monthlyStats = result;
+                }
+            }
+            else
+            {
+                result = dB.GetStockMonthlyStatsFromTable(year);
             }
             sp.Stop();
-            Logger.WriteLine($"getStockMonthlyStats() took {sp.Elapsed} seconds");
+            Logger.WriteLine($"getStockMonthlyStats({year}) took {sp.Elapsed} seconds");
             return result;
         }
 
@@ -216,7 +221,7 @@ namespace screener
             sp.Start();
             var list = dB.GetStockHistory(symbol, days);
             sp.Stop();
-            Logger.WriteLine($"GetStockStats({symbol}) took {sp.Elapsed} seconds");
+            Logger.WriteLine($"GetStockStats({symbol}, {days}) took {sp.Elapsed} seconds");
             return list;
         }
     }

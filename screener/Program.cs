@@ -20,13 +20,14 @@ namespace screener
         {
             StockMarket sm = new StockMarket();
             //sm.updateCompaniesList();
-            sm.updateBhavDataToLatest();
+            //sm.updateBhavDataToLatest();
             //sm.updateBhavData("..\\data\\cm01JAN2018bhav.csv", "..\\data\\MTO_01012018.DAT");
             //sm.getSectorChange();
             //sm.getSectorMonthlyStats();
             //sm.GetStockStats();
             //sm.getLTP();
             //sm.getStockMonthlyStats();
+            sm.getStockMonthlyStats(2017);
             return;
         }
     }
