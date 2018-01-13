@@ -133,7 +133,7 @@ namespace StockDatabase
         }
 
 
-        public int AddDailyStockData(List<DailyStockData> stockData, DateTime date)
+        public int AddDailyStockData(List<DailyStockData> stockData, List<CircuitBreaker> circuitBreaker, DateTime date)
         {
             var symIndMapping = getSymbolToIndustryMapping();
             using (var db = new StockDataContext())
@@ -144,6 +144,8 @@ namespace StockDatabase
                                             .Select(x => new SectorInformation(date, x.Key, x.Average(y => y.change)))
                                             .OrderBy(x => x.industry);
                 db.sectorInformation.AddRange(sectorChange);
+                if(circuitBreaker != null)
+                    db.circuitBreaker.AddRange(circuitBreaker);
                 var count = db.SaveChanges();
                 Console.WriteLine("Added {0} rows while updating companies Stock Data for {1} ", count, date.ToString());
                 return count;

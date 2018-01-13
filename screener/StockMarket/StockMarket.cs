@@ -75,10 +75,10 @@ namespace screener
         {
             int  count = 0;
             NseStockData nse = new NseStockData();
-            var stockData = nse.updateBhavData(date);
-            if (stockData != null)
+            var result = nse.updateBhavData(date);
+            if (result.stockData != null)
             {
-                count += dB.AddDailyStockData(stockData, date);
+                count += dB.AddDailyStockData(result.stockData, result.circuitBreakerData, date);
             }
             if(count != 0)
             {
@@ -95,7 +95,7 @@ namespace screener
             var stockData = nse.updateBhavData(bhavFile, mtoFile);
             if (stockData != null)
             {
-                count += dB.AddDailyStockData(stockData, date);
+                count += dB.AddDailyStockData(stockData, null, date);
             }
             if(count != 0)
             {

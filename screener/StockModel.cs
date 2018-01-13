@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 /*
     Help: https://docs.microsoft.com/en-us/ef/core/get-started/netcore/new-db-sqlite
-    dotnet ef migrations add InitialCreate &&  dotnet ef database update
+    dotnet ef migrations add CreateDB &&  dotnet ef database update
  */
 
 namespace StockDatabase
@@ -221,7 +221,7 @@ namespace StockDatabase
             modelBuilder.Entity<CompanyInformation>().HasKey(x => new { x.series, x.isinNumber, x.symbol });
             modelBuilder.Entity<PortfolioInformation>().HasKey(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<DailyStockData>().HasKey(x => new { x.isinNumber, x.date, x.series });
-            modelBuilder.Entity<CircuitBreaker>().HasKey(x => new { x.nseSymbol, x.date, x.series });
+            modelBuilder.Entity<CircuitBreaker>().HasKey(x => new { x.nseSymbol, x.date, x.series, x.high_low});
             modelBuilder.Entity<SectorInformation>().HasKey( x=> new {x.date, x.industry});
             modelBuilder.Entity<StockMonthlyStats>().HasKey(x => new {x.symbol, x.year});
 
@@ -229,12 +229,12 @@ namespace StockDatabase
             modelBuilder.Entity<WatchList>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<PortfolioInformation>().HasIndex(x => new { x.isinNumber, x.series, x.symbol });
             modelBuilder.Entity<CompanyInformation>().HasIndex(x => new { x.symbol, x.isinNumber, x.series });
-            modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.date, x.symbol, x.isinNumber, x.series });
             modelBuilder.Entity<DailyStockData>().HasIndex(x => new { x.symbol, x.series });
             modelBuilder.Entity<DailyStockData>().HasIndex(x => x.date);
             modelBuilder.Entity<SectorInformation>().HasIndex(x => x.date);
             modelBuilder.Entity<SectorInformation>().HasIndex(x => x.industry);
             modelBuilder.Entity<CircuitBreaker>().HasIndex(x => x.date);
+            modelBuilder.Entity<CircuitBreaker>().HasIndex(x => x.nseSymbol);
             modelBuilder.Entity<StockMonthlyStats>().HasIndex(x => x.symbol);
             modelBuilder.Entity<StockMonthlyStats>().HasIndex(x => x.year);
         }

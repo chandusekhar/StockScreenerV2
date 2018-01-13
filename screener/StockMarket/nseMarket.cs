@@ -89,6 +89,23 @@ namespace StockDataParser
         }
     }
 
+    class CircuitBreakerInformation
+    {
+        public string symbol { get; set; }
+        public string series { get; set; }
+        public string high_low { get; set; }
+    }
+
+    class CsvCircuitBreakerInformation : CsvMapping<CircuitBreakerInformation>
+    {
+        public CsvCircuitBreakerInformation() : base()
+        {
+            MapProperty(0, x => x.symbol);
+            MapProperty(1, x => x.series);
+            MapProperty(3, x => x.high_low);
+        }
+    }
+
     class FileDownloader
     {
         public FileDownloader()
@@ -127,9 +144,16 @@ namespace StockDataParser
 
         }
 
-        private (bool status, string bhavFile, string mtoFile) downloadBhavAndMTOFile(DateTime date)
+        private (bool status, string bhavFile, string mtoFile, string circuitBreaker) downloadBhavAndMTOFile(DateTime date)
         {
             String tmpFolder = Path.GetTempPath();
+            System.IO.DirectoryInfo di = new DirectoryInfo(tmpFolder);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                try { file.Delete(); }
+                catch(Exception){
+                }
+            }
             // Build the bhav Url
             string bhavUrl = string.Format("https://www.nseindia.com/content/historical/EQUITIES/{0}/{1}/cm{2}bhav.csv.zip",
                                             date.ToString("yyyy"), date.ToString("MMM").ToUpper(), date.ToString("ddMMMyyyy").ToUpper());
@@ -138,25 +162,30 @@ namespace StockDataParser
             string deliveryPositionsUrl = string.Format("https://www.nseindia.com/archives/equities/mto/MTO_{0}{1}{2}.DAT",
                                                          date.ToString("dd"), date.ToString("MM"), date.ToString("yyyy"));
 
-            Console.WriteLine("Bhav URL : {0}\nDelivery URL: {1}", bhavUrl, deliveryPositionsUrl);
+            string PRUrl = string.Format("https://www.nseindia.com/archives/equities/bhavcopy/pr/PR{0}{1}{2}.zip",
+                                                         date.ToString("dd"), date.ToString("MM"), date.ToString("yy"));
+
+            Console.WriteLine("Bhav URL : {0}\nDelivery URL: {1}\nCircuitBreakder: {2}", bhavUrl, deliveryPositionsUrl, PRUrl);
 
             // Download bhav and delivery file
             string bhavFile = FileDownloader.downloadFile(bhavUrl);
             string deliveryFile = FileDownloader.downloadFile(deliveryPositionsUrl);
-            if (bhavFile == null || deliveryFile == null)
+            string prFile = FileDownloader.downloadFile(PRUrl);
+            if (bhavFile == null || deliveryFile == null || prFile == null)
             {
                 Console.WriteLine("Could not update daily stock price for date {0}", date.ToString("dd/MM/yyyy"));
-                return (false, null, null);
+                return (false, null, null, null);
             }
 
             //Check the size of bhav file are more than 1k to make sure we have
             //downloaded the correct file
             var bhav = new FileInfo(bhavFile).Length;
             var delivery = new FileInfo(deliveryFile).Length;
-            if (bhav < 1000 || delivery < 1000)
+            var pr_file = new FileInfo(prFile).Length;
+            if (bhav < 1000 || delivery < 1000 || pr_file < 500)
             {
                 Console.WriteLine("Could not update daily stock price for date {0}", date.ToString("dd/MM/yyyy"));
-                return (false, null, null);
+                return (false, null, null, null);
             }
 
             // unzip the bhav file
@@ -165,8 +194,12 @@ namespace StockDataParser
             if (File.Exists(bhavFileUnzipped)) File.Delete(bhavFileUnzipped);
             ZipFile.ExtractToDirectory(bhavFile, tmpFolder);
 
+            string circuitBreakerUnzipped = Path.Combine(tmpFolder, string.Format("bh{0}.csv", date.ToString("ddMMyy").ToUpper()));
+            if (File.Exists(circuitBreakerUnzipped)) File.Delete(circuitBreakerUnzipped);
+            ZipFile.ExtractToDirectory(prFile, tmpFolder);
+
             // Return the unzipped the bhav file
-            return (true, bhavFileUnzipped, deliveryFile);
+            return (true, bhavFileUnzipped, deliveryFile, circuitBreakerUnzipped);
         }
 
         // Parse the MTO csv file
@@ -196,14 +229,27 @@ namespace StockDataParser
             return result;
         }
 
+        private IEnumerable<CircuitBreakerInformation> parseCircuitBreakerFile(string csvFile)
+        {
+            CsvParserOptions csvParserOptions = new CsvParserOptions(true, ',');
+            CsvCircuitBreakerInformation csvMapper = new CsvCircuitBreakerInformation();
+            CsvParser<CircuitBreakerInformation> csvParser = new CsvParser<CircuitBreakerInformation>(csvParserOptions, csvMapper);
+
+            var result = csvParser.ReadFromFile(csvFile, Encoding.ASCII)
+                                  .Select(x => x.Result);
+
+            return result;
+        }
+
         // Download and update the bhav data in DB for a given date
-        public List<DailyStockData> updateBhavData(DateTime date)
+        public (List<DailyStockData> stockData, List<CircuitBreaker> circuitBreakerData) updateBhavData(DateTime date)
         {
             var files = downloadBhavAndMTOFile(date);
             if (files.status == false)
-                return null;
+                return (null, null);
             var stockData = parseBhavFile(files.bhavFile).ToList();
             var deliveryData = parseMTOFile(files.mtoFile).ToList();
+            var circuitBreakerData = parseCircuitBreakerFile(files.circuitBreaker).ToList();
 
             Console.WriteLine("{0}, {1}", files.bhavFile, files.mtoFile);;
             foreach (var stock in stockData)
@@ -227,7 +273,15 @@ namespace StockDataParser
                     }
                 }
             }
-            return stockData;
+
+            var circuitBreaker = circuitBreakerData.OrderBy(x => x.high_low).Select(x => new CircuitBreaker() {
+                nseSymbol = x.symbol,
+                series = x.series,
+                high_low = x.high_low[0],
+                date = date
+            }).ToList();
+
+            return (stockData, circuitBreaker);
         }
 
         public List<DailyStockData> updateBhavData(string bhavFile, string mtoFile)
