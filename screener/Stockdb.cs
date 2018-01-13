@@ -21,6 +21,7 @@ namespace StockDatabase
     public class StockHistory
     {
         public DateTime date { get; set; }
+        public decimal openPrice { get; set;}
         public decimal ltp { get; set; }
         public decimal change { get; set; }
         public decimal totalTrades { get; set; }
@@ -356,7 +357,8 @@ namespace StockDatabase
                                              deliveryPercentage = x.deliveryPercentage,
                                              totalTrades = x.totalTrades,
                                              date = x.date.Date,
-                                             ltp = x.close
+                                             ltp = x.close,
+                                             openPrice = x.open
                                          })
                                          .OrderBy(x => x.date)
                                          .ToList();

@@ -11,6 +11,7 @@ interface StockHistory
     deliverableQty: number;
     deliveryPercentage: number;
     volumeChange: number;
+    openPrice: number;
 }
 
 interface StockMonthlyStats
@@ -51,7 +52,10 @@ export default class StockStatsComponent extends Vue {
     loadStats(year:number) : void {
         fetch('api/StockData/GetStockMonthlyStats?year='+year.toString())
         .then(response => response.json() as Promise<StockMonthlyStats[]>)
-        .then(data => { this.year = year; cachedStats = this.stats = data; this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
+        .then(data => { this.year = year;
+                       cachedStats = this.stats = data;
+                       this.searchQuery = '';
+                       this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
         .catch(reason => this.statusMessage = "API 'StockData/GetStockMonthlyStats' failed with error \"" + reason + "\"");
     }
 
@@ -100,7 +104,6 @@ export default class StockStatsComponent extends Vue {
 
     lastYear(): void {
         if(this.year <= 2016) {
-
             return;
         }
         this.loadStats(this.year-1);
@@ -115,6 +118,7 @@ export default class StockStatsComponent extends Vue {
 
     table_history_display_data: DisplayItems[] = [
             { header_field_name: "date", data_field_name: "date", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "Open Prices", data_field_name: "openPrice", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "ltp", data_field_name: "ltp", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
             { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
