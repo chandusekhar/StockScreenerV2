@@ -2,12 +2,31 @@ import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 import Moment from 'moment';
 
+interface StockHistory
+{
+    date: string;
+    ltp: number;
+    change: number;
+    totalTrades: number;
+    deliverableQty: number;
+    deliveryPercentage: number;
+    volumeChange: number;
+}
 
 interface StockMonthlyStats
 {
     year: number;
     symbol: string;
     change: number[];
+}
+
+interface DisplayItems {
+    header_field_name: string;
+    data_field_name: string;
+    sort_link: boolean;
+    show_total: boolean;
+    color_value: boolean;
+    has_link: boolean;
 }
 
 
@@ -90,5 +109,37 @@ export default class StockStatsComponent extends Vue {
     nextYear(): void {
         if(this.year > 2018) return;
         this.loadStats(this.year+1);
+    }
+
+    displayItemHistory: StockHistory[] = [];
+
+    table_history_display_data: DisplayItems[] = [
+            { header_field_name: "date", data_field_name: "date", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "ltp", data_field_name: "ltp", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
+            { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "deliverableQty", data_field_name: "deliverableQty", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "Volume Change(Times)", data_field_name: "volumeChange", sort_link: false, color_value: true, show_total: false, has_link:false }
+    ];
+
+    stock_symbol:string = "";
+    flag: boolean = true;
+    loadHistory(symbol: string, month: number, year: number): void {
+        this.flag = true;
+        this.stock_symbol = symbol;
+        this.displayItemHistory = [];
+        // Call the HTTP API to fetch company list in json format
+        fetch('api/StockData/GetStockHistoryForMonth?symbol='+symbol+"&month="+month+"&year="+year)
+            .then(response => response.json() as Promise<StockHistory[]>)
+            .then(data => {
+                this.displayItemHistory = data;
+                this.displayItemHistory.forEach(x => x.date =  Moment(String(x.date)).format('DD/MM/YYYY'));
+            })
+            .catch(reason => alert("Failed due to" + reason));
+    }
+
+    onClickChange(symbol: string, month: number) : void {
+        this.loadHistory(symbol, month, this.year);
     }
 }

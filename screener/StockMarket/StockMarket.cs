@@ -178,6 +178,11 @@ namespace screener
             return StockMarket.cache.sectorStats;
         }
 
+        public void updateMonthlyStocks(int year)
+        {
+            var result = dB.GetStockMonthlyStats(year);
+        }
+
         public List<StockMonthlyStats> getStockMonthlyStats(int year = 2017)
         {
             List<StockMonthlyStats> result = new List<StockMonthlyStats>();
@@ -186,10 +191,14 @@ namespace screener
             sp.Start();
             if(DateTime.Now.Year == year)
             {
+                // Fetch the data for the current year
                 if(StockMarket.cache.monthlyStats.Count() == 0)
                 {
                     result = dB.GetStockMonthlyStats(year);
                     StockMarket.cache.monthlyStats = result;
+                }
+                else {
+                    result = StockMarket.cache.monthlyStats;
                 }
             }
             else
@@ -222,6 +231,16 @@ namespace screener
             var list = dB.GetStockHistory(symbol, days);
             sp.Stop();
             Logger.WriteLine($"GetStockStats({symbol}, {days}) took {sp.Elapsed} seconds");
+            return list;
+        }
+
+        public List<StockHistory> GetStockHistory(string symbol, int year, int month)
+        {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
+            var list = dB.GetStockHistory(symbol, year, month);
+            sp.Stop();
+            Logger.WriteLine($"GetStockStats({symbol}, {year}, {month}) took {sp.Elapsed} seconds");
             return list;
         }
     }

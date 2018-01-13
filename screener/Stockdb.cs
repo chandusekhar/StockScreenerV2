@@ -228,7 +228,8 @@ namespace StockDatabase
             decimal[] change = new decimal[12];
             foreach(var item in result)
             {
-                change[item.Key.Month - 1] = decimal.Round(100*(item.Last().open - item.First().lastPrice)/item.Last().lastPrice, 2);
+                var r = item.OrderBy(x => x.date).ToList();
+                change[item.Key.Month - 1] = decimal.Round(100*(r.Last().lastPrice - r.First().open)/r.First().open, 2);
             }
             stats.change = change;
            // result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
@@ -242,8 +243,8 @@ namespace StockDatabase
                 var result = db.stockData.Where(x => (x.series == "EQ" || x.series == "BE") && (x.date.Year == year))
                                          .GroupBy(x => new { x.symbol })
                                          .Select(x => GetStockMonthlyStats(x.Key.symbol, x.AsQueryable(), year))
+                                         .OrderBy(x => x.symbol)
                                          .ToList();
-
                 return result;
             }
         }
@@ -252,7 +253,7 @@ namespace StockDatabase
         {
             using(var db = new StockDataContext())
             {
-                var result = db.monthlyStockStats.Where(x => x.year == year).ToList();
+                var result = db.monthlyStockStats.Where(x => x.year == year).OrderBy(x => x.symbol).ToList();
                 return result;
             }
         }
@@ -338,6 +339,35 @@ namespace StockDatabase
                     }
                 }
                 return result.OrderByDescending(x => x.date).Take(numEntries).ToList();
+            }
+        }
+
+        public List<StockHistory>   GetStockHistory(string symbol, int year, int month)
+        {
+            using (var db = new StockDataContext())
+            {
+                var result = db.stockData.Where(x => (x.symbol == symbol) && (x.series == "EQ" || x.series == "BE"))
+                                         .Select(x => new StockHistory
+                                         {
+                                             change = x.change,
+                                             deliverableQty = x.deliverableQty,
+                                             deliveryPercentage = x.deliveryPercentage,
+                                             totalTrades = x.totalTrades,
+                                             date = x.date.Date,
+                                             ltp = x.close
+                                         })
+                                         .OrderBy(x => x.date)
+                                         .ToList();
+                result = result.Where(x => (x.date.Year == year) && (x.date.Month == month)).ToList();
+                if (result.Count() > 3)
+                {
+                    for (int i = 1; i < result.Count(); i++)
+                    {
+                        if (result[i - 1].deliverableQty != 0)
+                            result[i].volumeChange = (decimal)Math.Round(1.0 * (result[i].deliverableQty - result[i - 1].deliverableQty) / result[i - 1].deliverableQty, 2);
+                    }
+                }
+                return result.OrderByDescending(x => x.date).ToList();
             }
         }
     }

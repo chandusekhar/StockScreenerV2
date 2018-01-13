@@ -20,7 +20,7 @@
         <span class="input-group-addon" id="sizing-addon1">
             <i class="glyphicon glyphicon-search"></i>
         </span>
-        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Sector">
+        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Symbol">
     </div>
     <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh"  v-if="stats.length">
         <table class="table table-hover">
@@ -36,14 +36,64 @@
                 <tr v-for="(item, index) in stats">
                     <td>{{index+1}}</td>
                     <td>{{item.symbol}}</td>
-                    <td v-for="change in item.change">
-                        <font v-bind:color="change > 0 ? 'Green' : 'Red'">{{change}}</font>
+                    <td v-for="(change, month) in item.change">
+                        <font v-bind:color="change > 0 ? 'Green' : 'Red'"
+                              v-on:click="onClickChange(item.symbol, month+1)"
+                              v-bind:data-toggle="flag ? 'modal': ''" data-target="#myModal"
+                              style="cursor: pointer;">
+                            {{change}}
+                        </font>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
     <p v-else>{{statusMessage}}</p>
+
+    <div id="myModal" class="modal" role="dialog" >
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header" style="text-align: center">
+                    <button type="button" class="close" data-dismiss="modal" >&times;</button>
+                    <h4 class="modal-title">Stock History for <font style="color: blue">{{stock_symbol}}</font></h4>
+                </div>
+                <div class="modal-body" style="text-align: left">
+                    <div>
+                        <table class="table table-hover">
+                            <thead>
+                                <th>#</th>
+                                <th v-for="item in table_history_display_data">
+                                    <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link">
+                                        {{item.header_field_name}}
+                                    </a>
+                                    <i v-else>{{item.header_field_name}}</i>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td v-for="item in table_history_display_data">
+                                        <i v-if="!item.show_total"></i>
+                                        <i v-else>
+                                            {{ (displayItemHistory.reduce((x, y) => x + y[item.data_field_name], 0)/displayItem.length).toFixed(2) }}
+                                        </i>
+                                    </td>
+                                </tr>
+                                <tr v-for="(item, index) in displayItemHistory">
+                                    <td>{{index+1}}</td>
+                                    <td v-for="field in table_history_display_data">
+                                        <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>
+                                        <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </template>
 

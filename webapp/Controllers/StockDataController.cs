@@ -97,8 +97,23 @@ namespace webapp.Controllers
             }
             catch (Exception ex)
             {
-                Logger.WriteLine($"WEBAPI GetHistory() failed with exception. Message {ex.Message}");
+                Logger.WriteLine($"WEBAPI GetHistory({symbol}) failed with exception. Message {ex.Message}");
                 return NotFound("Exception in GetHistory() function");
+            }
+        }
+
+        [HttpGet("[action]")]
+        public IActionResult GetStockHistoryForMonth(string symbol, int year, int month)
+        {
+            try
+            {
+                var result = stockMarket.GetStockHistory(symbol, year, month);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"WEBAPI GetStockHistoryForMonth({symbol}, {year}, {month}) failed with exception. Message {ex.Message}");
+                return NotFound("Exception in GetStockHistoryForMonth() function");
             }
         }
 
