@@ -229,7 +229,7 @@ namespace StockDatabase
             foreach(var item in result)
             {
                 var r = item.OrderBy(x => x.date).ToList();
-                change[item.Key.Month - 1] = decimal.Round(100*(r.Last().lastPrice - r.First().open)/r.First().open, 2);
+                change[item.Key.Month - 1] = decimal.Round(100*(r.Last().close - r.First().open)/r.First().open, 2);
             }
             stats.change = change;
            // result.ForEach(x => { stats.change[x.Key.Month-1] = decimal.Round((x.First().open - x.Last().lastPrice)/x.Last().lastPrice, 2); });
