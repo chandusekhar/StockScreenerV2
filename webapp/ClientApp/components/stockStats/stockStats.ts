@@ -39,7 +39,8 @@ export default class StockStatsComponent extends Vue {
     statusMessage: string = "Loading data from server";
     searchQuery: string = "";
     sortReverse: number = -1;
-    year: number = 2017;
+    year: number = Moment().year();
+    month:number = 0;
 
     constructor()
     {
@@ -118,7 +119,7 @@ export default class StockStatsComponent extends Vue {
 
     table_history_display_data: DisplayItems[] = [
             { header_field_name: "date", data_field_name: "date", sort_link: false, color_value: false, show_total: false, has_link:false },
-            { header_field_name: "Open Prices", data_field_name: "openPrice", sort_link: false, color_value: false, show_total: false, has_link:false },
+            { header_field_name: "O Price", data_field_name: "openPrice", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "ltp", data_field_name: "ltp", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "change", data_field_name: "change", sort_link: false, color_value: true, show_total: false, has_link:false },
             { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
@@ -139,11 +140,31 @@ export default class StockStatsComponent extends Vue {
             .then(data => {
                 this.displayItemHistory = data;
                 this.displayItemHistory.forEach(x => x.date =  Moment(String(x.date)).format('DD/MM/YYYY'));
+                this.month = month;
             })
             .catch(reason => alert("Failed due to" + reason));
     }
 
     onClickChange(symbol: string, month: number) : void {
         this.loadHistory(symbol, month, this.year);
+    }
+
+    loadMoreStatsData(): void {
+        var month: number = this.month - 1;
+        var year: number = this.year;
+
+        if (month == 0) {
+            year--;
+            month = 12;
+        }
+
+        // Call the HTTP API to fetch company list in json format
+        fetch('api/StockData/GetStockHistoryForMonth?symbol=' + this.stock_symbol + "&month=" + month + "&year=" + year)
+            .then(response => response.json() as Promise<StockHistory[]>)
+            .then(data => {
+                data.forEach(x => x.date = Moment(String(x.date)).format('DD/MM/YYYY'));
+                this.displayItemHistory = this.displayItemHistory.concat(data);
+            })
+            .catch(reason => alert("Failed due to" + reason));
     }
 }
