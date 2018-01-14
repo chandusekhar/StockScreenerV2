@@ -40,11 +40,12 @@ interface DisplayItems {
 }
 
 let fetchedData: StockStats[] = [];
+const page_size = 100;
 
 @Component
 export default class TodayComponent extends Vue {
     searchQuery: string = "";
-    sortReverse: number = -1;
+    sortReverse: number = 1;
     searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
     page_header: string = "Today's Volume Report";
     // Update the status in statusMessage
@@ -52,11 +53,11 @@ export default class TodayComponent extends Vue {
 
     // Component specific code
     displayItem: StockStats[] = [];
+    elements_per_page = page_size;
 
     // List of columns and the respective data fields
     table_display_data: DisplayItems[] = [
         { header_field_name: "Symbol", data_field_name: "symbol", sort_link: true, show_total: false, color_value: false, has_link: true },
-        { header_field_name: "Sector", data_field_name: "sector", sort_link: true, show_total: false, color_value: false , has_link: true},
         { header_field_name: "Last Price", data_field_name: "ltp", sort_link: true, show_total: false, color_value: false, has_link: false },
         { header_field_name: "Change", data_field_name: "priceChange", sort_link: true, show_total: true, color_value: true, has_link: false },
         { header_field_name: "5d Change", data_field_name: "priceChange5d", sort_link: true, show_total: true, color_value: true, has_link: false },
@@ -127,8 +128,42 @@ export default class TodayComponent extends Vue {
         }
     }
 
-    displayItemHistory: StockHistory[] = [];
+    linkClick(indexRow: number, indexCol: number, key: string): void {
+        if (indexCol != -1) {
+            switch (this.table_display_data[indexCol].data_field_name) {
+                case "symbol":
+                    {
+                        this.loadHistory(this.displayItem[indexRow].symbol);
+                        break;
+                    }
+                default:
+                    alert("wrong field in linkClick '" + this.table_display_data[indexCol].data_field_name + "'");
+                    break;
+            }
+        } else {
+            if (key == "sector") {
+                this.searchQuery = "sec:" + this.displayItem[indexRow].sector;
+                this.onSearch();
+            }
+            else {
+                alert("wrong field in linkClick(key) '" + key + "'");
+            }
+        }
+    }
 
+    showMoreElements(sector: string) {
+        this.elements_per_page += page_size;
+        if(this.elements_per_page >= fetchedData.length)
+            this.elements_per_page = fetchedData.length;
+    }
+
+    showLessElements(sector: string) {
+        this.elements_per_page -= page_size;
+        if(this.elements_per_page < page_size)
+            this.elements_per_page = page_size;
+    }
+
+    displayItemHistory: StockHistory[] = [];
     table_history_display_data: DisplayItems[] = [
             { header_field_name: "date", data_field_name: "date", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "ltp", data_field_name: "ltp", sort_link: false, color_value: false, show_total: false, has_link:false },
@@ -140,9 +175,8 @@ export default class TodayComponent extends Vue {
     ];
 
     stock_symbol:string = "";
-    flag: boolean = false;
     loadHistory(symbol: string): void {
-        this.flag = true;
+        //this.flag = true;
         this.stock_symbol = symbol;
         this.displayItemHistory = [];
         // Call the HTTP API to fetch company list in json format
@@ -153,26 +187,5 @@ export default class TodayComponent extends Vue {
                 this.displayItemHistory.forEach(x => x.date =  Moment(String(x.date)).format('DD/MM/YYYY'));
             })
             .catch(reason => alert("Failed due to" + reason));
-    }
-
-    linkClick(indexRow: number, indexCol: number): void {
-        switch(this.table_display_data[indexCol].data_field_name)
-        {
-            case "symbol":
-                {
-                    this.loadHistory(this.displayItem[indexRow].symbol);
-                    break;
-                }
-            case "sector":
-                {
-                    this.flag = false;
-                    this.searchQuery = "sec:" + this.displayItem[indexRow].sector;
-                    this.onSearch();
-                    break;
-                }
-            default:
-                alert("wrong field in linkClick '" + this.table_display_data[indexCol].data_field_name + "'");
-                break;
-        }
     }
 }

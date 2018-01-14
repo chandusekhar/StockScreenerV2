@@ -117,7 +117,7 @@ export default class TodayStockComponent extends Vue {
                     fetchedStockPrices = data;
                     fetchedStockPrices.forEach(x => this.updateFetchedData(x));
                     fetchedStockPrices = fetchedStockPrices.sort((a, b): number => b.priceChange - a.priceChange);
-                    this.displayItem = fetchedStockPrices;
+                    //this.displayItem = fetchedStockPrices;
                     this.statusMessage = "";
                 })
                 .catch(reason => this.statusMessage = "API 'StockData/CompanyList' failed with error \"" + reason + "\"");

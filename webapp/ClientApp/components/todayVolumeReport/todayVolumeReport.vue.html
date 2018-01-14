@@ -12,6 +12,7 @@
         <table class="table table-hover">
             <thead>
                 <th>#</th>
+                <th><a v-on:click="sortBy('sector')">Sector</a></th>
                 <th v-for="item in table_display_data">
                     <a v-on:click="sortBy(item.data_field_name)" v-if="item.sort_link" v-bind:title="item.data_field_name">
                         {{item.header_field_name}}
@@ -29,17 +30,26 @@
                         </i>
                     </td>
                 </tr>
-                <tr v-for="(item, indexRow) in displayItem">
+                <tr v-for="(item, indexRow) in displayItem" v-if="indexRow < elements_per_page">
                     <td>{{indexRow+1}}</td>
+                    <td>
+                        <a v-on:click="linkClick(indexRow, -1, 'sector')">
+                            {{item.sector}}
+                        </a>
+                    </td>
                     <td v-for="(field, indexCol) in table_display_data" >
                         <a v-on:click="linkClick(indexRow, indexCol)"
-                            v-bind:data-toggle="flag ? 'modal': ''" data-target="#myModal" v-if="field.has_link" style="text-align:center">
+                            v-bind:data-toggle="'modal'" data-target="#myModal" v-if="field.has_link">
                             {{item[field.data_field_name]}}
                         </a>
                         <i v-else-if="!field.color_value">{{item[field.data_field_name]}}</i>
                         <font v-bind:color="item[field.data_field_name] > 0 ? 'Green' : 'Red'" v-else>{{item[field.data_field_name]}}</font>
                     </td>
                 </tr>
+                <tr v-if="displayItem.length >= 150">
+                        <td colspan="2"><a v-on:click="showMoreElements()"  style="cursor: pointer;">Show more elements</a></td>
+                        <td><a v-on:click="showLessElements()"  style="cursor: pointer;">Show less elements</a></td>
+                    </tr>
             </tbody>
         </table>
     </div>
