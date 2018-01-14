@@ -184,6 +184,9 @@ namespace StockDatabase
             }
         }
 
+        [NotMapped]
+        public string sector;
+
         [Required]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string InternalData { get; set; }

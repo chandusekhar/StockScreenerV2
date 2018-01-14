@@ -19,6 +19,7 @@ interface StockMonthlyStats
     year: number;
     symbol: string;
     change: number[];
+    sector: string;
 }
 
 interface DisplayItems {
@@ -73,6 +74,7 @@ export default class StockStatsComponent extends Vue {
                     return (left.change[index] - right.change[index]) * this.sortReverse;
                 });
                 break;
+            case 'sector':
             case 'symbol':
                 this.stats = this.stats.sort((left, right): number => left[key].localeCompare(right[key]) * this.sortReverse);
                 break;
@@ -98,9 +100,18 @@ export default class StockStatsComponent extends Vue {
 
         if (query.indexOf("pos:") == 0)
             this.stats = cachedStats.filter(x => this.allPositive(x.change));
+        else if(query.indexOf("sec:") == 0)
+        {
+            this.stats = cachedStats.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
+        }
         else {
             this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0);
         }
+    }
+
+    onSectorClick(sector: string): void {
+        this.searchQuery = "sec:" + sector;
+        this.onSearch();
     }
 
     lastYear(): void {

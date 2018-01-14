@@ -241,6 +241,7 @@ namespace StockDatabase
 
         public List<StockMonthlyStats> GetStockMonthlyStats(int year)
         {
+            var mapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
                 var result = db.stockData.Where(x => (x.series == "EQ" || x.series == "BE") && (x.date.Year == year))
@@ -248,15 +249,18 @@ namespace StockDatabase
                                          .Select(x => GetStockMonthlyStats(x.Key.symbol, x.AsQueryable(), year))
                                          .OrderBy(x => x.symbol)
                                          .ToList();
+                result.ForEach(x => x.sector = mapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
                 return result;
             }
         }
 
         public List<StockMonthlyStats> GetStockMonthlyStatsFromTable(int year)
         {
+            var mapping = getSymbolToIndustryMapping();
             using(var db = new StockDataContext())
             {
                 var result = db.monthlyStockStats.Where(x => x.year == year).OrderBy(x => x.symbol).ToList();
+                result.ForEach(x => x.sector = mapping.TryGetValue(x.symbol, out string industry) ? industry : ConstValues.defaultIndustry);
                 return result;
             }
         }
