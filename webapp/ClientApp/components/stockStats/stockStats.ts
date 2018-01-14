@@ -31,17 +31,27 @@ interface DisplayItems {
     has_link: boolean;
 }
 
-
 let cachedStats: StockMonthlyStats[] = [];
+const page_size = 100;
 
 @Component
 export default class StockStatsComponent extends Vue {
     stats: StockMonthlyStats[] = [];
     statusMessage: string = "Loading data from server";
     searchQuery: string = "";
-    sortReverse: number = -1;
-    year: number = Moment().year();
-    month:number = 0;
+    sortReverse = -1;
+
+    // Requried for saving sort order when moving between years
+    sortKey = '';
+    sortIndex = 0;
+    sortDirection = 0;
+
+    year = Moment().year();
+    month = 0;
+
+
+    elements_per_page = page_size;
+
 
     constructor()
     {
@@ -54,10 +64,14 @@ export default class StockStatsComponent extends Vue {
     loadStats(year:number) : void {
         fetch('api/StockData/GetStockMonthlyStats?year='+year.toString())
         .then(response => response.json() as Promise<StockMonthlyStats[]>)
-        .then(data => { this.year = year;
-                       cachedStats = this.stats = data;
-                       this.searchQuery = '';
-                       this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): ""; })
+        .then(data => {
+                this.year = year;
+                cachedStats = data;
+                this.stats = cachedStats;
+                this.statusMessage = data.length == 0 ? ("No enteries for year " + year.toString()): "";
+                this.onSearch();
+                this.sortBy(this.sortKey, this.sortIndex, this.sortDirection);
+            })
         .catch(reason => this.statusMessage = "API 'StockData/GetStockMonthlyStats' failed with error \"" + reason + "\"");
     }
 
@@ -65,14 +79,18 @@ export default class StockStatsComponent extends Vue {
         this.loadStats(this.year);
     }
 
-    sortBy(key: string, index: number) {
-        this.sortReverse *= -1;
+    sortBy(key: string, index: number, direction: number = 0) {
+        if(direction == 0)
+            this.sortReverse *= -1;
+        else
+            this.sortReverse = direction;
+        this.sortKey = key;
+        this.sortIndex = index;
+        this.sortDirection = this.sortReverse;
         switch(key)
         {
             case 'change':
-                this.stats.sort((left, right):number => {
-                    return (left.change[index] - right.change[index]) * this.sortReverse;
-                });
+                this.stats = this.stats.sort((left, right):number => { return (left.change[index] - right.change[index]) * this.sortReverse;});
                 break;
             case 'sector':
             case 'symbol':
@@ -81,14 +99,12 @@ export default class StockStatsComponent extends Vue {
         }
     }
 
-    private allPositive(change: number[]): boolean {
+    private allPositive(change: number[], threshold: number): boolean {
         let i:number = 0, count:number = 0;
         for(i = 0; i < change.length; i++) {
             if(change[i] <= 0)
-            {
                 count++;
-            }
-            if(count > 3)
+            if(count > threshold)
                 return false;
         }
         return true;
@@ -98,15 +114,23 @@ export default class StockStatsComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("pos:") == 0)
-            this.stats = cachedStats.filter(x => this.allPositive(x.change));
-        else if(query.indexOf("sec:") == 0)
-        {
-            this.stats = cachedStats.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
-        }
-        else {
-            this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0);
-        }
+        if (query.indexOf("pos:") == 0) this.stats = cachedStats.filter(x => this.allPositive(x.change, 2));
+        else if(query.indexOf("sec:") == 0) this.stats = cachedStats.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
+        else this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0 || x.sector.toLowerCase().indexOf(query) >= 0);
+
+        this.sortBy(this.sortKey, this.sortIndex, this.sortDirection);
+    }
+
+    showMoreElements(sector: string) {
+        this.elements_per_page += page_size;
+        if(this.elements_per_page >= cachedStats.length)
+            this.elements_per_page = cachedStats.length;
+    }
+
+    showLessElements(sector: string) {
+        this.elements_per_page -= page_size;
+        if(this.elements_per_page < page_size)
+            this.elements_per_page = page_size;
     }
 
     onSectorClick(sector: string): void {
@@ -125,6 +149,8 @@ export default class StockStatsComponent extends Vue {
         if(this.year > 2018) return;
         this.loadStats(this.year+1);
     }
+
+    /* Stock histry dialog box releated query operations*/
 
     displayItemHistory: StockHistory[] = [];
 

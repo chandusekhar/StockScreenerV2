@@ -21,7 +21,7 @@
                 <i class="glyphicon glyphicon-search" v-if="searchQuery.length == 0"></i>
                 <i class="glyphicon glyphicon-remove" style="cursor: pointer;" v-else="searchQuery.length != 0" v-on:click="searchQuery = '';onSearch()"></i>
         </span>
-        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Symbol">
+        <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" placeholder="Search Symbol, sec:<sector name>">
     </div>
     <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh"  v-if="stats.length">
         <table class="table table-hover">
@@ -36,10 +36,10 @@
                 </th>
             </thead>
             <tbody>
-                <tr v-for="(item, index) in stats">
+                <tr v-for="(item, index) in stats" v-if="index < elements_per_page">
                     <td>{{index+1}}</td>
                     <td>{{item.symbol}}</td>
-                    <td v-on:click="onSectorClick(item.sector)"  style="cursor: pointer;">{{item.sector}}</td>
+                    <td><a v-on:click="onSectorClick(item.sector)"  style="cursor: pointer;">{{item.sector}}</a></td>
                     <td v-for="(change, month) in item.change">
                         <font v-bind:color="change > 0 ? 'Green' : 'Red'"
                               v-on:click="onClickChange(item.symbol, month+1)"
@@ -48,6 +48,10 @@
                             {{change}}
                         </font>
                     </td>
+                </tr>
+                <tr v-if="stats.length >= 150">
+                    <td colspan="2"><a v-on:click="showMoreElements()"  style="cursor: pointer;">Show more elements</a></td>
+                    <td colspan="2"><a v-on:click="showLessElements()"  style="cursor: pointer;">Show less elements</a></td>
                 </tr>
             </tbody>
         </table>
