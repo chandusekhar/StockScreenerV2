@@ -4,15 +4,8 @@ import Moment from 'moment';
 
 class CircuitBreaker {
     nseSymbol: string;
-    series: string;
-    high_low: string;
-    date: Date;
-}
-
-interface DisplayItems {
-    header_field_name: string;
-    data_field_name: string;
-    sort_link: boolean;
+    count_h: number;
+    count_l: number;
 }
 
 let fetchedData: CircuitBreaker[] = [];
@@ -22,9 +15,9 @@ export default class companyListComponent extends Vue {
     searchQuery: string = "";
     sortReverse: number = -1;
     searchPlaceHolder: string = "sym:<symbol>,sec:<sector>,ser:<series>,default companyName";
-    page_header: string = "Today's Circuit Breaker";
+    page_header: string = "Circuit Breaker for today and last 5 days";
     // Update the status in statusMessage
-    statusMessage: string = "Fetching list of companies from server";
+    statusMessage: string = "Fetching list of companies in circuit breaker";
 
     // Component specific code
     displayItem: CircuitBreaker[] = [];
@@ -35,14 +28,6 @@ export default class companyListComponent extends Vue {
             if (value) { return Moment(String(value)).format('DD/MM/YYYY'); }
         });
     }
-
-    // List of columns and the respective data fields
-    table_display_data: DisplayItems[] = [
-        { header_field_name: "Symbol", data_field_name: "nseSymbol", sort_link: true },
-        { header_field_name: "High/Low", data_field_name: "high_low", sort_link: true },
-        { header_field_name: "Series", data_field_name: "series", sort_link: false },
-        { header_field_name: "Date", data_field_name: "date", sort_link: false },
-    ];
 
     mounted(): void {
         this.displayItem = fetchedData;
@@ -60,8 +45,7 @@ export default class companyListComponent extends Vue {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("ser:") == 0) this.displayItem = fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
-        else this.displayItem = fetchedData.filter(x => (x.nseSymbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
+        this.displayItem = fetchedData.filter(x => (x.nseSymbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
     //Callback function to sort the list
@@ -69,9 +53,13 @@ export default class companyListComponent extends Vue {
         this.sortReverse *= -1;
         switch (sortKey) {
             case "nseSymbol":
-            case "series":
-            case "high_low":
                 this.displayItem = this.displayItem.sort((left, right): number => left[sortKey].localeCompare(right[sortKey]) * this.sortReverse);
+                break;
+            case "count_h":
+                this.displayItem = this.displayItem.sort((left, right): number => ((left.count_h - right.count_h) || (right.count_l - left.count_l))  * this.sortReverse);
+                break;
+            case "count_l":
+                this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;
         }
     }

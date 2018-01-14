@@ -165,11 +165,12 @@ namespace screener
         }
 
 
-        public List<CircuitBreaker> TodayCircuitBreaker()
+        public List<CircuitBreakerInfo> TodayCircuitBreaker()
         {
             Stopwatch sp = new Stopwatch();
             sp.Start();
             var result = dB.GetCircuitBreaker(0);
+            sp.Stop();
             Logger.WriteLine($"TodayCircuitBreaker() took {sp.Elapsed} seconds");
             return result;
         }
