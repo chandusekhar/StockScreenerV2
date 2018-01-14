@@ -199,6 +199,18 @@ namespace StockDatabase
             }
         }
 
+
+
+        public List<CircuitBreaker> GetCircuitBreaker(int day = 0)
+        {
+            var lastTradedDate = GetLastTradeDate(day);
+
+            using (var db = new StockDataContext())
+            {
+                return db.circuitBreaker.Where(x => (x.date.Date == lastTradedDate.Date) && (x.series == "EQ" || x.series == "BE")).ToList();
+            }
+        }
+
         public List<SectorStats> GetSectorMonthlyStats()
         {
             using (var db = new StockDataContext())

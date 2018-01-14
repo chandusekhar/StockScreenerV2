@@ -164,6 +164,16 @@ namespace screener
             return StockMarket.cache.sectorChange;
         }
 
+
+        public List<CircuitBreaker> TodayCircuitBreaker()
+        {
+            Stopwatch sp = new Stopwatch();
+            sp.Start();
+            var result = dB.GetCircuitBreaker(0);
+            Logger.WriteLine($"TodayCircuitBreaker() took {sp.Elapsed} seconds");
+            return result;
+        }
+
         public List<SectorStats> getSectorMonthlyStats()
         {
             Stopwatch sp = new Stopwatch();

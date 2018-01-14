@@ -88,6 +88,21 @@ namespace webapp.Controllers
         }
 
         [HttpGet("[action]")]
+        public IActionResult TodayCircuitBreaker()
+        {
+            try
+            {
+                var result = stockMarket.TodayCircuitBreaker();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"WEBAPI TodayCircuitBreaker() failed with exception. Message {ex.Message}");
+                return NotFound("Exception in TodayCircuitBreaker() function");
+            }
+        }
+
+        [HttpGet("[action]")]
         public IActionResult GetHistory(string symbol)
         {
             try
