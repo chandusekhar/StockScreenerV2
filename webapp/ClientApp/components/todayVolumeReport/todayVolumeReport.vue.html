@@ -4,7 +4,7 @@
     <div class="input-group input-group-lg has-feedback has-clear">
         <span class="input-group-addon" id="sizing-addon1">
             <i class="glyphicon glyphicon-search" v-if="searchQuery.length == 0"></i>
-            <i class="glyphicon glyphicon-remove" v-else="searchQuery.length != 0" v-on:click="searchQuery = '';onSearch()"></i>
+            <i class="glyphicon glyphicon-remove" style="cursor: pointer;" v-else="searchQuery.length != 0" v-on:click="searchQuery = '';onSearch()"></i>
         </span>
         <input class="form-control" type="text" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearch" v-bind:placeholder="searchPlaceHolder">
     </div>

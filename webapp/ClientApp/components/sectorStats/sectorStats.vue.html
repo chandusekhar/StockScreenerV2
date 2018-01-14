@@ -7,10 +7,10 @@
         <div class="col-sm-3">
             <div class="input-group input-group-lg">
                 <span class="input-group-addon" id="sizing-addon1">
-                    <i class="glyphicon glyphicon-search"></i>
+                        <i class="glyphicon glyphicon-search" v-if="searchQuery.length == 0"></i>
+                        <i class="glyphicon glyphicon-remove" style="cursor: pointer;" v-else="searchQuery.length != 0" v-on:click="searchQuery = '';onSearchSector()"></i>
                 </span>
-
-                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuerySector" v-on:keyup="onSearchSector"
+                <input class="form-control" aria-describedby="sizing-addon1" v-model="searchQuery" v-on:keyup="onSearchSector"
                        placeholder="Search Sector">
             </div>
             <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh" v-if="sectors.length">
@@ -22,7 +22,7 @@
                 <tbody>
                     <tr v-for="(item, index) in sectors">
                         <td>{{index+1}}</td>
-                        <td v-on:click="onSectorClick(item)">{{item}}</td>
+                        <td v-on:click="onSectorClick(item)" style="cursor: pointer;">{{item}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -33,17 +33,17 @@
                 <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 80vh">
                         <table class="table table-hover">
                                 <thead>
-                                    <th>Year</th>
-                                    <th><a v-on:click="sortBy('month')">Month</a></th>
-                                    <th>Change</th>
+                                    <th>Month</th>
+                                    <th>2016</th>
+                                    <th>2017</th>
+                                    <th>2018</th>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="item in sectorStats">
-                                        <td>{{item.year}}</td>
-                                        <td>{{item.month | monthToString}}</td>
-                                        <td>
-                                        <font v-bind:color="item.change > 0 ? 'Green' : 'Red'">{{item.change}}</font>
-                                        </td>
+                                    <tr v-for="(item, index) in month_list">
+                                        <td>{{index | monthToString}}</td>
+                                        <td><font v-bind:color="year_2016[index]> 0 ? 'Green' : 'Red'">{{year_2016[index]}}</font></td>
+                                        <td><font v-bind:color="year_2017[index]> 0 ? 'Green' : 'Red'">{{year_2017[index]}}</font></td>
+                                        <td><font v-bind:color="year_2018[index]> 0 ? 'Green' : 'Red'">{{year_2018[index]}}</font></td>
                                     </tr>
                                 </tbody>
                         </table>
