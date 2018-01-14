@@ -22,7 +22,7 @@
                             <tr v-for="(item, index) in displayItem">
                                 <td>{{index+1}}</td>
                                 <td>{{item.nseSymbol}}</td>
-                                <td v-bind:color="item.high_low === 'L' ? 'Red' : 'Green'">{{item.high_low}}</td>
+                                <td><font v-bind:color="item.high_low == 'L'? 'Red' : 'Green'">{{item.high_low}}</font></td>
                                 <td>{{item.series}}</td>
                                 <td>{{item.date | formatDate}}</td>
                                 <!--
