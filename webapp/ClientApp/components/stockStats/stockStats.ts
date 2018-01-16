@@ -126,6 +126,7 @@ export default class StockStatsComponent extends Vue {
         if (query.indexOf("pos:") == 0) this.stats = cachedStats.filter(x => this.allPositive(x.change, 1));
         else if(query.indexOf("ond:") == 0) this.stats = cachedStats.filter(x => this.lastThreeMonth(x.change));
         else if(query.indexOf("sec:") == 0) this.stats = cachedStats.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
+        else if(query.indexOf("sym:") == 0) this.stats = cachedStats.filter(x => x.symbol.toLowerCase().indexOf(searchParam) >= 0);
         else this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0 || x.sector.toLowerCase().indexOf(query) >= 0);
 
         this.sortBy(this.sortKey, this.sortIndex, this.sortDirection);

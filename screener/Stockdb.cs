@@ -14,6 +14,7 @@ namespace StockDatabase
         public int count_h {get; set; }
         public int count_l {get; set;}
         public int today { get; set; }
+        public decimal ltp { get; set; }
     }
 
     public class CompanyInfo
@@ -220,16 +221,16 @@ namespace StockDatabase
                                                           && (x.high_low == 'H')
                                                           && !low_circuit.Any(y => y.nseSymbol == x.nseSymbol))
                                               .ToList();
-                /*return db.circuitBreaker.Where(x => (x.date.Date == lastTradedDate.Date) && (x.series == "EQ" || x.series == "BE"))
-                                        .OrderBy(x => x.nseSymbol)
-                                        .ToList();*/
+                var ltp = db.stockData.Where(x => x.date.CompareTo(lastTradedDate) >= 0 && (x.series == "EQ") || (x.series == "BE"))
+                                      .ToList();
                 return db.circuitBreaker.Where(x => (x.date.CompareTo(Date30ago.Date) >= 0) && (x.series == "EQ" || x.series == "BE"))
                                         .GroupBy(x => new { x.nseSymbol })
                                         .Select(x => new CircuitBreakerInfo() {
                                             nseSymbol = x.Key.nseSymbol,
                                             count_h = x.Where(y => y.high_low == 'H').Count(),
                                             count_l = x.Where(y => y.high_low == 'L').Count(),
-                                            today = result.Any(y => y.nseSymbol == x.Key.nseSymbol) ? 1 : 0
+                                            today = result.Any(y => y.nseSymbol == x.Key.nseSymbol) ? 1 : 0,
+                                            ltp = ltp.Where(y => y.symbol == x.Key.nseSymbol).Select(y => y.close).FirstOrDefault()
                                         })
                                         .Where(x => x.count_h > 0) //Lets return only those stocks which have hit upper circuits atleast once
                                         .ToList();

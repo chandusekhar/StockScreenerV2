@@ -7,6 +7,7 @@ class CircuitBreaker {
     count_h: number;
     count_l: number;
     today: number;
+    ltp: number;
 }
 
 let fetchedData: CircuitBreaker[] = [];
@@ -64,6 +65,9 @@ export default class companyListComponent extends Vue {
                 break;
             case "today":
                 this.displayItem = this.displayItem.sort((left, right): number => ((left[sortKey] - right[sortKey]) || (right.count_h - left.count_h) || (right.count_l - left.count_l)) * this.sortReverse);
+                break;
+            case "ltp":
+                this.displayItem = this.displayItem.sort((left, right): number => ((left.today - right.today) || (left.ltp - right.ltp)) * this.sortReverse);
                 break;
         }
     }
