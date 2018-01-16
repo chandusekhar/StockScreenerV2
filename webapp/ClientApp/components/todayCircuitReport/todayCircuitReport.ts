@@ -6,6 +6,7 @@ class CircuitBreaker {
     nseSymbol: string;
     count_h: number;
     count_l: number;
+    today: number;
 }
 
 let fetchedData: CircuitBreaker[] = [];
@@ -60,6 +61,9 @@ export default class companyListComponent extends Vue {
                 break;
             case "count_l":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
+                break;
+            case "today":
+                this.displayItem = this.displayItem.sort((left, right): number => ((left[sortKey] - right[sortKey]) || (right.count_h - left.count_h) || (right.count_l - left.count_l)) * this.sortReverse);
                 break;
         }
     }

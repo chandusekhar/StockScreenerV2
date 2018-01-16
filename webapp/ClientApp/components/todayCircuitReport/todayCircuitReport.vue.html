@@ -14,15 +14,24 @@
                         <thead>
                             <th>#</th>
                             <th v-on:click="sortBy('nseSymbol')" style="cursor: pointer;">Symbol</th>
+                            <th v-on:click="sortBy('today')" style="cursor: pointer;">Today</th>
                             <th v-on:click="sortBy('count_h')"  style="cursor: pointer;">High Count</th>
                             <th v-on:click="sortBy('count_l')"  style="cursor: pointer;">Low Count</th>
+                            <th>Links</th>
                         </thead>
                         <tbody>
                             <tr v-for="(item, index) in displayItem">
                                 <td>{{index+1}}</td>
-                                <td>{{item.nseSymbol}}</td>
+                                <td><font v-bind:color="item.today == 1 ? 'GREEN' : 'BLACK'">{{item.nseSymbol}}</font></td>
+                                <td>{{item.today}}</td>
                                 <td><font v-bind:color="item.count_h == 6 && item.count_l == 0 ? 'blue' : 'black'">{{item.count_h}}</font></td>
                                 <td>{{item.count_l}}</td>
+                                <td>
+                                    <a v-bind:href="'https://www.screener.in/company/'+item.nseSymbol" stype="padding:10px" target="_blank">
+                                        <span class="glyphicon glyphicon-globe">
+                                        </span>
+                                    </a>
+                                </td>
                             </tr>
                         </tbody>
                     </table>

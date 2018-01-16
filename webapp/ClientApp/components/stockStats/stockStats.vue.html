@@ -37,7 +37,12 @@
             </thead>
             <tbody>
                 <tr v-for="(item, index) in stats" v-if="index < elements_per_page">
-                    <td>{{index+1}}</td>
+                    <td>{{index+1}}
+                        <a v-bind:href="'https://www.screener.in/company/'+item.symbol" stype="padding:10px" target="_blank">
+                            <span class="glyphicon glyphicon-globe">
+                            </span>
+                        </a>
+                    </td>
                     <td>{{item.symbol}}</td>
                     <td><a v-on:click="onSectorClick(item.sector)"  style="cursor: pointer;">{{item.sector}}</a></td>
                     <td v-for="(change, month) in item.change">

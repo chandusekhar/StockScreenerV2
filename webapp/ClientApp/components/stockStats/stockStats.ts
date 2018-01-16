@@ -110,11 +110,21 @@ export default class StockStatsComponent extends Vue {
         return true;
     }
 
+    private lastThreeMonth(change: number[]): boolean {
+        let i:number = 0, count:number = 0;
+        for(i = 9; i < change.length; i++) {
+            if(change[i] <= 0)
+                return false;
+        }
+        return true;
+    }
+
     onSearch(): void {
         let query: string = this.searchQuery.toLowerCase();
         let searchParam: string = query.substr(4, query.length);
 
-        if (query.indexOf("pos:") == 0) this.stats = cachedStats.filter(x => this.allPositive(x.change, 2));
+        if (query.indexOf("pos:") == 0) this.stats = cachedStats.filter(x => this.allPositive(x.change, 1));
+        else if(query.indexOf("ond:") == 0) this.stats = cachedStats.filter(x => this.lastThreeMonth(x.change));
         else if(query.indexOf("sec:") == 0) this.stats = cachedStats.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
         else this.stats = cachedStats.filter(x =>  x.symbol.toLowerCase().indexOf(query) >= 0 || x.sector.toLowerCase().indexOf(query) >= 0);
 

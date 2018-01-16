@@ -13,6 +13,7 @@ namespace StockDatabase
         public string nseSymbol { get; set; }
         public int count_h {get; set; }
         public int count_l {get; set;}
+        public int today { get; set; }
     }
 
     public class CompanyInfo
@@ -214,6 +215,11 @@ namespace StockDatabase
             var Date30ago = GetLastTradeDate(day+5);
             using (var db = new StockDataContext())
             {
+                var low_circuit = db.circuitBreaker.Where(x => (x.date.Date.CompareTo(lastTradedDate) >= 0) && (x.high_low == 'L')).ToList();
+                var result = db.circuitBreaker.Where(x => (x.date.Date.CompareTo(lastTradedDate) >= 0)
+                                                          && (x.high_low == 'H')
+                                                          && !low_circuit.Any(y => y.nseSymbol == x.nseSymbol))
+                                              .ToList();
                 /*return db.circuitBreaker.Where(x => (x.date.Date == lastTradedDate.Date) && (x.series == "EQ" || x.series == "BE"))
                                         .OrderBy(x => x.nseSymbol)
                                         .ToList();*/
@@ -222,7 +228,8 @@ namespace StockDatabase
                                         .Select(x => new CircuitBreakerInfo() {
                                             nseSymbol = x.Key.nseSymbol,
                                             count_h = x.Where(y => y.high_low == 'H').Count(),
-                                            count_l = x.Where(y => y.high_low == 'L').Count()
+                                            count_l = x.Where(y => y.high_low == 'L').Count(),
+                                            today = result.Any(y => y.nseSymbol == x.Key.nseSymbol) ? 1 : 0
                                         })
                                         .Where(x => x.count_h > 0) //Lets return only those stocks which have hit upper circuits atleast once
                                         .ToList();

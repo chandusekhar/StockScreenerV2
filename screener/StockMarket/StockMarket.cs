@@ -71,7 +71,7 @@ namespace screener
             }
         }
 
-        public void updateBhavData(DateTime date)
+        public int updateBhavData(DateTime date)
         {
             int  count = 0;
             NseStockData nse = new NseStockData();
@@ -84,7 +84,7 @@ namespace screener
             {
                 StockMarket.cache.Clear();
             }
-            return;
+            return count;
         }
 
         public void updateBhavData(string bhavFile, string mtoFile)
@@ -103,18 +103,19 @@ namespace screener
             }
         }
 
-        public void updateBhavDataToLatest()
+        public int updateBhavDataToLatest()
         {
+            int count = 0;
             var date = getLastDate();
             //var count = DateTime.Now.Date.CompareTo(date);
-            TimeSpan count = DateTime.Now - date;
-            for(int i = 1; i <= count.Days; i++)
+            TimeSpan date_diff = DateTime.Now - date;
+            for(int i = 1; i <= date_diff.Days; i++)
             {
                 Logger.WriteLine($"UpdateBhavDataToLatest() updating date for {date.AddDays(i).Date}");
-                updateBhavData(date.AddDays(i));
+                count += updateBhavData(date.AddDays(i));
             }
 
-            return;
+            return count;
         }
 
         public DateTime getLastDate()

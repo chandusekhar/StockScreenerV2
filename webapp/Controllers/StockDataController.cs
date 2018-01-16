@@ -152,8 +152,8 @@ namespace webapp.Controllers
         {
             try
             {
-                stockMarket.updateBhavDataToLatest();
-                return Ok();
+                var count = stockMarket.updateBhavDataToLatest();
+                return Ok(count);
             }
             catch (Exception ex)
             {
