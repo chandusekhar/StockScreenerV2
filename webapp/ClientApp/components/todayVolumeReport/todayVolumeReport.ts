@@ -11,6 +11,7 @@ class StockHistory
     deliverableQty: number;
     deliveryPercentage: number;
     volumeChange: number;
+    tradeValueChange: number;
 }
 
 interface StockStats {
@@ -28,6 +29,7 @@ interface StockStats {
     volume: number;
     priceChange5d: number;
     priceChange10d: number;
+    marketCapChange: number;
 }
 
 interface DisplayItems {
@@ -46,7 +48,7 @@ const page_size = 100;
 export default class TodayComponent extends Vue {
     searchQuery: string = "";
     sortReverse: number = 1;
-    searchPlaceHolder: string = "sec:<sector>,ser:<series>,default symbol";
+    searchPlaceHolder: string = "sec:<sector>,ser:<series>,evl:<expression>,default symbol";
     page_header: string = "Today's Volume Report";
     // Update the status in statusMessage
     statusMessage: string = "Fetching today's volume report from server";
@@ -78,6 +80,9 @@ export default class TodayComponent extends Vue {
             x.volume10dAvg = Number(((x.avgVolumeChage[0] - x.avgVolumeChage[2])/x.avgVolumeChage[2]).toFixed(2));
 
         x.volume = x.avgVolumeChage[0];
+        x.marketCapChange = Number((x.ltp * x.volume / 10000000).toFixed(2));
+        if(x.priceChange < 0)
+            x.marketCapChange *= -1;
     }
 
     mounted(): void {
@@ -104,6 +109,10 @@ export default class TodayComponent extends Vue {
 
         if (query.indexOf("ser:") == 0) this.displayItem = fetchedData.filter(x => x.series.toLowerCase().indexOf(searchParam) >= 0);
         else if (query.indexOf("sec:") == 0) this.displayItem = fetchedData.filter(x => x.sector.toLowerCase().indexOf(searchParam) >= 0);
+        else if(query.indexOf("evl:") == 0) {
+            let expression:string = "fetchedData.filter(x => " + searchParam + ")";
+            this.displayItem = eval(expression);
+        }
         else this.displayItem = fetchedData.filter(x => (x.symbol.toLowerCase().indexOf(this.searchQuery.toLowerCase()) >= 0));
     }
 
@@ -123,6 +132,7 @@ export default class TodayComponent extends Vue {
             case "priceChange":
             case "priceChange5d":
             case "priceChange10d":
+            case "marketCapChange":
                 this.displayItem = this.displayItem.sort((left, right): number => (left[sortKey] - right[sortKey]) * this.sortReverse);
                 break;
         }
@@ -171,7 +181,8 @@ export default class TodayComponent extends Vue {
             { header_field_name: "totalTrades", data_field_name: "totalTrades", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "deliverableQty", data_field_name: "deliverableQty", sort_link: false, color_value: false, show_total: false, has_link:false },
             { header_field_name: "deliveryPercentage", data_field_name: "deliveryPercentage", sort_link: false, color_value: false, show_total: false, has_link:false },
-            { header_field_name: "Volume Change(Times)", data_field_name: "volumeChange", sort_link: false, color_value: true, show_total: false, has_link:false }
+            { header_field_name: "Volume Change(Times)", data_field_name: "volumeChange", sort_link: false, color_value: true, show_total: false, has_link:false },
+            { header_field_name: "Trade Value change CR", data_field_name: "tradeValueChange", sort_link: false, color_value: true, show_total: false, has_link:false }
     ];
 
     stock_symbol:string = "";
@@ -185,6 +196,11 @@ export default class TodayComponent extends Vue {
             .then(data => {
                 this.displayItemHistory = data;
                 this.displayItemHistory.forEach(x => x.date =  Moment(String(x.date)).format('DD/MM/YYYY'));
+                let i:number = 0;
+                for(i = 0; i < this.displayItemHistory.length - 1; i++)
+                {
+                    this.displayItemHistory[i].tradeValueChange = Number(((this.displayItemHistory[i].volumeChange * this.displayItemHistory[i+1].deliverableQty *  this.displayItemHistory[i+1].ltp)/10000000).toFixed(2));
+                }
             })
             .catch(reason => alert("Failed due to" + reason));
     }

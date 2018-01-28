@@ -62,7 +62,11 @@
             <div class="modal-content">
                 <div class="modal-header" style="text-align: center">
                     <button type="button" class="close" data-dismiss="modal" >&times;</button>
-                    <h4 class="modal-title">Stock History for <font style="color: blue">{{stock_symbol}}</font></h4>
+                    <h4 class="modal-title">Stock History for
+                        <a v-bind:href="'https://www.screener.in/company/'+stock_symbol" stype="padding:10px" target="_blank">
+                            {{stock_symbol}}
+                        </a>
+                    </h4>
                 </div>
                 <div class="modal-body" style="text-align: left">
                     <div class="container-fluid table-responsive" style="overflow: scroll; overflow-x: auto; height: 60vh" v-if="displayItem.length">
@@ -86,7 +90,7 @@
                                         </i>
                                     </td>
                                 </tr>
-                                <tr v-for="(item, index) in displayItemHistory">
+                                <tr v-for="(item, index) in displayItemHistory" v-bind:style="item.volumeChange > 10 ? 'background-color:cyan' : ''">
                                     <td>{{index+1}}</td>
                                     <td v-for="field in table_history_display_data">
                                         <i v-if="!field.color_value">{{item[field.data_field_name]}}</i>

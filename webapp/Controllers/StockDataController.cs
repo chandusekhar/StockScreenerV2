@@ -107,7 +107,7 @@ namespace webapp.Controllers
         {
             try
             {
-                var result = stockMarket.GetStockHistory(symbol);
+                var result = stockMarket.GetStockHistory(symbol, 400);
                 return Ok(result);
             }
             catch (Exception ex)
